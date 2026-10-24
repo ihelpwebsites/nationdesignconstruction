@@ -6,8 +6,8 @@ Most facts are entered in **admin → Business details** and only appear once yo
 ## ⛔ Blocking
 | Item | Status | What to do |
 |---|---|---|
-| **Mailbox for hello@nationdesignconstruction.com** | ⛔ The domain has **no MX records** (checked 2026-10-24), so this mailbox does not exist. The site therefore shows the phone and form only, never the email. | Set up email hosting for the domain (Google Workspace, Microsoft 365 or GoDaddy email). Add its MX/SPF/DKIM records — don't change the A/CNAME/TXT records listed in DEPLOYMENT.md. Send and receive one message, then in admin tick "verified" for the email and set it as the notification inbox. |
-| **Notification sending** | ⛔ No email provider key on the server. Leads are stored safely regardless; notifications queue as "not configured" and are delivered automatically (last 3 days) once set up. | In Resend (or similar), verify a sending subdomain (e.g. notify.nationdesignconstruction.com — add its SPF/DKIM records at GoDaddy), then add `RESEND_API_KEY` and `EMAIL_FROM` in Render → nationdc → Environment yourself. Never paste keys into chat. |
+| **Mailbox hello@nationdesignconstruction.com** | ✅ Created by the owner (Google Workspace MX + SPF present). Published sitewide. | Nothing — but confirm the first notification arrives (see next row). |
+| **Notification sending** | ⛔ Only the secret is missing. Resend domain `notify.nationdesignconstruction.com` is **verified** (DKIM + send/rsend records at GoDaddy, 2026-10-24); sender, recipient (hello@) and Reply-To are built in. | Resend → API Keys → Create API key → permission **Sending access**, domain **notify.nationdesignconstruction.com** → copy it. Render → nationdc → Environment → Add `RESEND_API_KEY` = (the key) → Save, rebuild and deploy. Queued notifications from the last 3 days then send automatically to hello@ — check that inbox (and spam) for "[TEST] New inquiry NDC-…". |
 | **Bing Webmaster Tools** | ⛔ Needs your Microsoft or Google sign-in in a browser. (IndexNow already notified Bing of all 106 URLs.) | Sign in at bing.com/webmasters → "Import from Google Search Console". |
 
 ## Trust facts (shown only once verified)

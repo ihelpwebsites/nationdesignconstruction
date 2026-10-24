@@ -30,6 +30,15 @@ Render issues and renews the TLS certificates. `www` → apex 301 (Render edge);
 `BOOTSTRAP_ADMIN_EMAIL`; change it in admin → Business details after signing in). Optional later: `RESEND_API_KEY`,
 `EMAIL_FROM`, `TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`.
 
+## Email (2026-10-24)
+- Inbox: Google Workspace (root MX aspmx.l.google.com…, root SPF `include:_spf.google.com`) — owner-managed; do not edit.
+- Sending: Resend team "nationvanrentals", domain `notify.nationdesignconstruction.com` (us-east-1) **verified**. GoDaddy
+  records: TXT `resend._domainkey.notify` (DKIM), CNAME `send.notify` → send.forge.rmta.net, CNAME `rsend.notify` →
+  rsend.forge.rmta.net. Receiving (MX on notify) intentionally not enabled.
+- App: From `Nation Design & Construction <notify@notify.nationdesignconstruction.com>` (EMAIL_FROM overrides), To hello@
+  (admin/NOTIFY_EMAIL overrides), Reply-To = customer on internal notices, hello@ on customer confirmations. Needs only the
+  `RESEND_API_KEY` secret in Render. `node tools/test-email.mjs` checks the whole path against a local mock.
+
 ## Backups & rollback
 - Render snapshots the disk (database + uploads) **every 24 hours, kept 7 days** (Render → nationdc → Disks → Snapshots;
   restoring discards later changes). Code rollback: Render → Events → Rollback, or `git revert` + Manual Deploy.
