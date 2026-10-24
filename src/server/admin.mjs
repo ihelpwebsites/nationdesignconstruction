@@ -14,7 +14,7 @@ import { FL_COUNTIES } from '../data/counties.mjs';
 import { CATEGORIES, SERVICES } from '../data/catalog.mjs';
 import { esc, attr, list, fmtDateTime, fmtDate, money, UNIT_NAME } from '../site/html.mjs';
 import { EMAIL, SITE_URL, UPLOAD } from '../config.mjs';
-import { ASSET_VERSION } from '../site/assets.mjs';
+import { ASSET_VERSION, brand } from '../site/assets.mjs';
 import { PHOTO_KINDS } from './photos.mjs';
 
 const one = (v) => (Array.isArray(v) ? v[0] : v) ?? '';
@@ -27,8 +27,8 @@ function page(res, title, body, staff, { status = 200, headers = {} } = {}) {
     <form method="post" action="/admin/logout"><input type="hidden" name="_csrf" value="${attr(staff.session.csrf)}"><button class="linkbtn">Sign out</button></form></nav>` : '';
   res.writeHead(status, { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store', ...headers });
   res.end(`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow">
-<title>${esc(title)} · Admin · Nation Design &amp; Construction</title><link rel="icon" href="/brand/favicon.svg"><link rel="stylesheet" href="/css/site.css?v=${ASSET_VERSION}"><link rel="stylesheet" href="/css/admin.css?v=${ASSET_VERSION}"></head>
-<body class="admin"><header class="a-head"><a href="/admin/" class="a-brand"><img src="/brand/nation-logo-ivory-tight.svg" alt="Nation Design &amp; Construction" height="36" width="159"><span>Admin</span></a>${nav}</header>
+<title>${esc(title)} · Admin · Nation Design &amp; Construction</title><link rel="icon" href="${brand('nation-favicon.svg')}"><link rel="stylesheet" href="/css/site.css?v=${ASSET_VERSION}"><link rel="stylesheet" href="/css/admin.css?v=${ASSET_VERSION}"></head>
+<body class="admin"><header class="a-head"><a href="/admin/" class="a-brand"><img src="${brand('nation-logo-ivory-tight.svg')}" alt="Nation Design &amp; Construction" height="36" width="159"><span>Admin</span></a>${nav}</header>
 <main class="a-main" id="main">${body}</main></body></html>`);
 }
 const csrf = (staff) => `<input type="hidden" name="_csrf" value="${attr(staff.session.csrf)}">`;

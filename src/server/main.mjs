@@ -79,9 +79,10 @@ function staticFile(req, res, pathname) {
   if (!st?.isFile()) return false;
   const type = TYPES[path.extname(full)] || 'application/octet-stream';
   const etag = `W/"${st.size.toString(16)}-${Math.round(st.mtimeMs).toString(16)}"`;
-  const versioned = /^\/(img|fonts|brand)\//.test(pathname) || /[?&]v=/.test(req.url);
+  // Long-lived caching only for URLs that change when the file changes (?v= stamp) and for photos/fonts, which are
+  // never edited in place. Everything else — including unversioned /brand/ and /favicon.ico — revalidates hourly.
+  const versioned = /^\/(img|fonts)\//.test(pathname) || /[?&]v=/.test(req.url);
   const headers = { etag, 'cache-control': versioned ? 'public, max-age=31536000, immutable' : 'public, max-age=3600' };
-  if (pathname.startsWith('/brand/') && !/\/(favicon|apple-touch|icon-)/.test(pathname)) headers['cache-control'] = 'public, max-age=86400';
   if (req.headers['if-none-match'] === etag) { res.writeHead(304, headers); res.end(); return true; }
   sendBody(req, res, 200, type, fs.readFileSync(full), headers);
   return true;

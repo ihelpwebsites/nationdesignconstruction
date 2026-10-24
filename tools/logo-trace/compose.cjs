@@ -25,7 +25,7 @@ files['nation-logo-ivory-tight.svg'] = svg(tightVB, tw, th, p(symV, C.bronzeLigh
 const S = Math.max(sym.w, sym.h), cx = sym.x0 + sym.w / 2, cy = sym.y0 + sym.h / 2;
 const icon = (padFrac, radius) => { const side = S * (1 + 2 * padFrac); const x = cx - side / 2, y = cy - side / 2;
   return svg(`${x} ${y} ${side} ${side}`, 512, 512, `<rect x="${x}" y="${y}" width="${side}" height="${side}" rx="${side * radius}" fill="${C.ivory}"/>` + p(symV, C.bronze), 'Nation'); };
-files['favicon.svg'] = icon(0.12, 0.18);
-files['app-icon.svg'] = icon(0.22, 0);
+files['nation-favicon.svg'] = icon(0.12, 0.18);
+files['nation-app-icon.svg'] = icon(0.22, 0);
 for (const [n, s] of Object.entries(files)) fs.writeFileSync(path.join(OUT, n), s);
 console.log(Object.keys(files).map((n) => `${n} ${fs.statSync(path.join(OUT, n)).size}`).join('\n'));

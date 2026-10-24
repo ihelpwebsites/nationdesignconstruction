@@ -11,6 +11,7 @@ import { TRADES, PROJECT_SIZES, INSURANCE_STATUS } from '../../data/trades.mjs';
 import { FL_COUNTIES } from '../../data/counties.mjs';
 import { facts } from '../../data/business.mjs';
 import { TURNSTILE, UPLOAD } from '../../config.mjs';
+import { brand } from '../assets.mjs';
 
 // ---- Residential / Commercial ------------------------------------------------------------------------
 const MARKET = {
@@ -114,7 +115,7 @@ export function aboutPage() {
 </div></section>
 
 <section class="story" id="our-story" aria-labelledby="story-h"><div class="wrap story-grid">
-  <div class="story-mark"><img src="/brand/nation-symbol.svg" alt="" aria-hidden="true" width="342" height="362" loading="lazy" decoding="async"></div>
+  <div class="story-mark"><img src="${brand('nation-symbol.svg')}" alt="" aria-hidden="true" width="342" height="362" loading="lazy" decoding="async"></div>
   <div class="story-text">
     <p class="eyebrow">${esc(STORY_LABEL)}</p>
     <h2 id="story-h">${esc(STORY_HEADING)}</h2>
@@ -313,9 +314,9 @@ export function brandPage() {
   ];
   const body = `<section class="page-hero"><div class="wrap"><p class="eyebrow">Brand</p><h1>Logo &amp; brand assets</h1>
   <p class="lede">The approved NATION logo. SVG files are vector outlines traced from the approved artwork (no fonts needed) — use them for signs, vehicles and shirts. Transparent PNGs are provided for documents.</p></div></section>
-<section class="section"><div class="wrap grid c2">${list(files, ([f, label, bg, png]) => `<figure class="panel"><div class="brand-swatch" style="background:${bg}"><img src="/brand/${f}.svg" alt="${attr(label)}" loading="lazy"></div>
+<section class="section"><div class="wrap grid c2">${list(files, ([f, label, bg, png]) => `<figure class="panel"><div class="brand-swatch" style="background:${bg}"><img src="${brand(f + '.svg')}" alt="${attr(label)}" loading="lazy"></div>
   <figcaption><strong>${esc(label)}</strong><br><a href="/brand/${f}.svg" download>SVG</a>${png ? ` · <a href="/brand/${f}.png" download>PNG</a>` : ''}</figcaption></figure>`)}
-  <figure class="panel"><div class="brand-swatch"><img src="/brand/favicon.svg" alt="Favicon" width="64" height="64"> <img src="/brand/apple-touch-icon.png" alt="App icon" width="64" height="64"></div><figcaption><strong>Favicon, app icon &amp; social card</strong><br><a href="/brand/favicon.svg" download>favicon.svg</a> · <a href="/favicon.ico" download>favicon.ico</a> · <a href="/brand/icon-512.png" download>icon-512.png</a> · <a href="/brand/og-image.png" download>og-image.png</a></figcaption></figure>
+  <figure class="panel"><div class="brand-swatch"><img src="${brand('nation-favicon.svg')}" alt="Favicon" width="64" height="64"> <img src="${brand('nation-apple-touch-icon.png')}" alt="App icon" width="64" height="64"></div><figcaption><strong>Favicon, app icon &amp; social card</strong><br><a href="${brand('nation-favicon.svg')}" download>favicon.svg</a> · <a href="/favicon.ico" download>favicon.ico</a> · <a href="${brand('nation-icon-512.png')}" download>icon-512.png</a> · <a href="${brand('nation-og-image.png')}" download>og-image.png</a></figcaption></figure>
   <div class="panel"><h2>Colors</h2><ul class="ticks"><li>Logo bronze #795C38 · light bronze #C99A69 on dark</li><li>Logo charcoal #202428</li><li>Warm ivory #F6F2EA</li></ul>
   <h2 class="mt-2">Clear space &amp; sizes</h2><p class="small">Keep clear space at least the height of the NATION letters around the logo. Keep the full logo at least 220 px / 60 mm wide so DESIGN &amp; CONSTRUCTION stays readable; below that, use the symbol alone. Never stretch, recolor outside these versions, or redraw the lettering.</p></div>
 </div></section>`;

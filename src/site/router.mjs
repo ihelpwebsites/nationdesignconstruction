@@ -8,6 +8,7 @@ import { services, categories, indexable } from '../server/services.mjs';
 import { publishedPhotos } from '../server/photos.mjs';
 import { SITE_URL, INDEXING } from '../config.mjs';
 import { BUSINESS, facts } from '../data/business.mjs';
+import { brand } from './assets.mjs';
 
 const html = (body, extra = {}) => ({ status: 200, body, ...extra });
 const nf = (p) => ({ status: 404, body: notFoundPage(p), noindex: true });
@@ -42,7 +43,7 @@ function llms() {
 }
 function manifest() {
   return JSON.stringify({ name: BUSINESS.name, short_name: 'Nation D&C', start_url: '/', display: 'browser', background_color: '#F6F2EA', theme_color: '#1E1D1B',
-    icons: [{ src: '/brand/icon-192.png', sizes: '192x192', type: 'image/png' }, { src: '/brand/icon-512.png', sizes: '512x512', type: 'image/png' }] });
+    icons: [{ src: brand('nation-icon-192.png'), sizes: '192x192', type: 'image/png' }, { src: brand('nation-icon-512.png'), sizes: '512x512', type: 'image/png' }] });
 }
 
 export function route(p, query) {

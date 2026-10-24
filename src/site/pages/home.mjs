@@ -6,6 +6,7 @@ import { CONCEPTS, conceptArt } from '../concepts.mjs';
 import { publishedPhotos } from '../../server/photos.mjs';
 import { inquiryMini } from './start.mjs';
 import { PREVIEW_HEADING, PREVIEW_TEXT } from '../../content/story.mjs';
+import { brand } from '../assets.mjs';
 
 export function home() {
   const cats = categories();
@@ -150,7 +151,7 @@ export function home() {
 
 <section class="section story-preview" aria-labelledby="meaning-h">
   <div class="wrap story-preview-grid">
-    <img class="story-preview-mark" src="/brand/nation-symbol.svg" alt="" aria-hidden="true" width="342" height="362" loading="lazy" decoding="async">
+    <img class="story-preview-mark" src="${brand('nation-symbol.svg')}" alt="" aria-hidden="true" width="342" height="362" loading="lazy" decoding="async">
     <div class="stack">
       <h2 id="meaning-h">${esc(PREVIEW_HEADING)}</h2>
       <p class="lede">${esc(PREVIEW_TEXT)}</p>

@@ -127,13 +127,18 @@ await test('no placeholder prices, fake claims or lorem ipsum in rendered pages'
 await test('approved logo everywhere; no old logo variants; icons and social card present', async () => {
   for (const p of ['/', '/about/', '/services/', '/admin/login/']) {
     const h = await text(P + p);
-    assert.ok(!/logo-horizontal|logo-stacked|\/brand\/mark-/.test(h), `${p}: old logo reference`);
+    assert.ok(!/logo-horizontal|logo-stacked|\/brand\/mark-|\/brand\/(favicon|apple-touch-icon|icon-\d|og-image|app-icon)/.test(h), `${p}: old logo/icon reference`);
+    // every brand asset URL carries a version stamp so browsers can never keep a stale logo
+    for (const m of h.matchAll(/["(]\/brand\/[^"?)]+(\?v=[0-9a-f]{10})?/g)) assert.ok(m[1], `${p}: unversioned ${m[0]}`);
   }
   const h = await text(P + '/');
-  assert.match(h, /<img src="\/brand\/nation-logo-tight\.svg" alt="Nation Design &amp; Construction — home" width="264" height="60">/);
-  assert.match(h, /nation-logo-ivory-tight\.svg/);
-  assert.match(h, /og:image" content="https:\/\/nationdesignconstruction.com\/brand\/og-image.png"/);
-  for (const a of ['/brand/nation-logo.svg', '/brand/nation-symbol.svg', '/brand/favicon.svg', '/favicon.ico', '/brand/apple-touch-icon.png', '/brand/og-image.png']) assert.equal((await get(P + a)).status, 200, a);
+  assert.match(h, /<img src="\/brand\/nation-logo-tight\.svg\?v=[0-9a-f]{10}" alt="Nation Design &amp; Construction — home" width="264" height="60">/);
+  assert.match(h, /nation-logo-ivory-tight\.svg\?v=/);
+  assert.match(h, /og:image" content="https:\/\/nationdesignconstruction.com\/brand\/nation-og-image.png\?v=[0-9a-f]{10}"/);
+  assert.match(h, /rel="icon" href="\/brand\/nation-favicon.svg\?v=/);
+  for (const old of ['/brand/favicon.svg', '/brand/apple-touch-icon.png', '/brand/og-image.png', '/brand/logo-horizontal-light.svg']) assert.equal((await get(P + old)).status, 404, `${old} should be gone`);
+  assert.match((await get(P + '/brand/nation-logo.svg')).headers.get('cache-control'), /max-age=3600/, 'unversioned brand URLs must not be cached for a year');
+  for (const a of ['/brand/nation-logo.svg', '/brand/nation-symbol.svg', '/brand/nation-favicon.svg', '/favicon.ico', '/brand/nation-apple-touch-icon.png', '/brand/nation-og-image.png']) assert.equal((await get(P + a)).status, 200, a);
   const svg = await text(P + '/brand/nation-logo.svg'); assert.ok(!svg.includes('<image'), 'logo SVG must be true vector');
 });
 await test('About page: intro, then the approved story verbatim at #our-story, then approach and CTA', async () => {
@@ -144,7 +149,7 @@ await test('About page: intro, then the approved story verbatim at #our-story, t
   assert.ok(iH1 < iStory && iStory < iApproach && iApproach < iCta, 'section order');
   assert.ok(h.includes('The meaning behind Nation'), 'label'); assert.ok(h.includes(esc(STORY_HEADING)), 'heading');
   for (const p of [...STORY, STORY_CLOSE]) assert.ok(h.includes(`>${esc(p)}</p>`), `missing paragraph: ${p.slice(0, 40)}`);
-  assert.match(h, /<img src="\/brand\/nation-symbol.svg" alt="" aria-hidden="true" width="342" height="362"/);
+  assert.match(h, /<img src="\/brand\/nation-symbol.svg\?v=[0-9a-f]{10}" alt="" aria-hidden="true" width="342" height="362"/);
   assert.ok(!h.includes('Principles you can hold us to'), 'duplicate values block removed');
 });
 await test('homepage story preview sits just before the inquiry section and links to /about/#our-story', async () => {
