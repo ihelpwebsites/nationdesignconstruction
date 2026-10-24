@@ -53,27 +53,36 @@
     return !firstBad;
   }
 
+  // Aggregate measurement only: event names and field names — never values.
+  const beacon = (e, l) => { try { navigator.sendBeacon('/api/event', JSON.stringify({ e, l })); } catch { /* optional */ } };
+
   async function submit(form, { onOk }) {
+    if (form._busy) return; // ignore double clicks / repeated Enter while a request is in flight
     const errBox = form.parentElement.querySelector('[data-form-error]');
     const btn = form.querySelector('[type=submit]');
     errBox.hidden = true;
+    form._busy = true; form.setAttribute('aria-busy', 'true');
     btn.disabled = true; const label = btn.innerHTML; btn.textContent = 'Sending…';
+    const ctrl = new AbortController(); const timer = setTimeout(() => ctrl.abort(), 60000);
     try {
-      const r = await fetch(form.action, { method: 'POST', body: new FormData(form), headers: { accept: 'application/json' }, credentials: 'same-origin' });
+      // The form carries a one-time submission key, so retrying after a timeout can never create a duplicate.
+      const r = await fetch(form.action, { method: 'POST', body: new FormData(form), headers: { accept: 'application/json' }, credentials: 'same-origin', signal: ctrl.signal });
       let data = null; try { data = await r.json(); } catch { /* non-JSON = failure */ }
       if (!r.ok || !data || data.ok !== true) {
         if (data?.fields) {
           Object.entries(data.fields).forEach(([k, v]) => setError(form, k, v));
+          beacon('form_error', `${form.id}/${Object.keys(data.fields).join('-')}`);
           const step = form.querySelector(`#err-${Object.keys(data.fields)[0]}`)?.closest('[data-step]');
           if (step && form._goTo) form._goTo(Number(step.dataset.step));
         }
-        throw new Error(data?.error || (r.status === 413 ? 'Your attachments are too large. Remove some and try again.' : 'Your submission could not be sent. Please try again.'));
+        throw Object.assign(new Error(data?.error || (r.status === 413 ? 'Your attachments are too large. Remove some and try again.' : 'Your submission could not be sent. Please try again.')), { server: true });
       }
       onOk(data);
     } catch (e) {
-      errBox.textContent = (e.message && !/Failed to fetch|NetworkError/i.test(e.message)) ? e.message : 'We couldn’t reach the server, so your details were not sent. Check your connection and try again.';
+      errBox.textContent = e.server ? e.message
+        : 'We couldn’t confirm that your details arrived — the connection dropped or timed out. Everything you entered is still here. Please press send again; if the first attempt did arrive, this won’t create a duplicate.';
       errBox.hidden = false; errBox.scrollIntoView({ block: 'center', behavior: 'smooth' }); errBox.focus?.();
-    } finally { btn.disabled = false; btn.innerHTML = label; }
+    } finally { clearTimeout(timer); form._busy = false; form.removeAttribute('aria-busy'); btn.disabled = false; btn.innerHTML = label; }
   }
   const confirmHtml = (title, body) => `<p class="eyebrow">Received</p><h2>${title}</h2>${body}`;
 
@@ -94,7 +103,10 @@
       if (focus) { const h = $('h2', steps[n - 1]); h.tabIndex = -1; h.focus(); }
     };
     form._goTo = goTo;
-    next.addEventListener('click', () => { if (validateScope(form, steps[cur - 1])) goTo(cur + 1); });
+    next.addEventListener('click', () => {
+      if (validateScope(form, steps[cur - 1])) { goTo(cur + 1); beacon('inquiry_step', `step-${cur}`); }
+      else beacon('form_error', `inquiry/step-${cur}`);
+    });
     prev.addEventListener('click', () => goTo(cur - 1));
     form.addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target.tagName === 'INPUT' && cur < steps.length) { e.preventDefault(); next.click(); } });
 

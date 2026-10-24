@@ -72,6 +72,15 @@ export default {
       { q: 'Do I need a topographic survey?', a: 'If the project involves grading, drainage, a pool, a new home or an addition where ground levels matter, a topographic survey is usually needed by the engineers. A simple interior project typically does not need one.' },
     ],
     related: ['site-plans-civil-engineering', 'permit-coordination', 'clearing-excavation-grading', 'custom-homes'],
+    standalone: { mode: 'either', text: 'A survey can be arranged on its own – for example before buying, designing or permitting – or as part of a project we manage. The survey itself is performed and signed by a licensed surveyor.' },
+    startWith: [
+      'The parcel information or legal description of the property',
+      'Any prior surveys of the property',
+      'Title or closing documents showing easements, if available',
+      'What the survey is for: design, permitting, closing or construction layout',
+      'An existing elevation certificate, if one exists',
+      'Site access notes such as gates, fences or dense vegetation',
+    ],
   },
 
   'site-plans-civil-engineering': {
@@ -148,6 +157,15 @@ export default {
       { q: 'Can you work with my civil engineer?', a: 'Yes. If you have an engineer or approved plans, we coordinate with the engineer of record and build to their design.' },
     ],
     related: ['survey-coordination', 'geotechnical-soil-testing', 'clearing-excavation-grading', 'retaining-walls-drainage', 'site-development'],
+    standalone: { mode: 'either', text: 'Civil site plans can be coordinated on their own for a substantial new build or development, or as part of a project we manage. A licensed civil engineer prepares and seals the plans.' },
+    startWith: [
+      'A current boundary and topographic survey',
+      'A geotechnical report, if one has been done',
+      'Architectural plans or a concept site layout',
+      'Known utility locations and service information',
+      'Flood zone information and any known drainage problems',
+      'Prior correspondence with permitting agencies, if any',
+    ],
   },
 
   'structural-engineering': {
@@ -223,6 +241,14 @@ export default {
       { q: 'What if I already have structural plans?', a: 'We review them with the architectural drawings for conflicts and missing details, price from them, and coordinate any questions or revisions with the engineer of record.' },
     ],
     related: ['structural-modifications', 'geotechnical-soil-testing', 'concrete-foundations', 'framing', 'home-additions'],
+    standalone: { mode: 'either', text: 'Structural engineering can be coordinated on its own when you need drawings for a planned change, or as part of a project we manage. A licensed structural engineer performs and seals the work.' },
+    startWith: [
+      'Existing drawings of the building, if available',
+      'Architectural plans or a clear description of the planned change',
+      'Photos of the affected walls, framing, attic or foundation',
+      'A geotechnical report, for new foundations',
+      'Prior engineering or inspection reports, if any',
+    ],
   },
 
   'mep-engineering': {
@@ -296,6 +322,15 @@ export default {
       { q: 'Who installs the systems?', a: 'Licensed electrical, plumbing and mechanical contractor partners install the systems and pull the trade permits. We coordinate them with the rest of the work and check rough-ins before walls are closed.' },
     ],
     related: ['electrical', 'plumbing', 'hvac', 'restaurants-commercial-kitchens', 'commercial-build-outs'],
+    standalone: { mode: 'with-project', text: 'MEP engineering is normally part of a larger renovation, build-out or new build we manage, where it is coordinated with the architectural and structural design. Licensed engineers prepare and seal the drawings.' },
+    startWith: [
+      'Architectural floor plans for the space',
+      'The intended use and occupancy of the space',
+      'Equipment lists, especially for commercial kitchens or specialized uses',
+      'Existing MEP drawings or utility service information, if available',
+      'Photos of the electrical panel, HVAC equipment and water heater',
+      'Landlord or tenant requirements, for commercial spaces',
+    ],
   },
 
   'geotechnical-soil-testing': {
@@ -370,5 +405,14 @@ export default {
       { q: 'Is a geotechnical investigation the same as a sinkhole investigation?', a: 'No. A sinkhole investigation follows its own assessment process and testing methods. If sinkhole activity is a concern, we coordinate that assessment separately.' },
     ],
     related: ['structural-engineering', 'site-plans-civil-engineering', 'concrete-foundations', 'sinkhole-remediation', 'clearing-excavation-grading'],
+    standalone: { mode: 'either', text: 'Soil testing can be arranged on its own – for example before buying land or designing a foundation – or as part of a project we manage. A licensed geotechnical engineer directs the testing and interprets the results.' },
+    startWith: [
+      'A survey of the property',
+      'The proposed building location and footprint',
+      'Any prior geotechnical or sinkhole reports',
+      'Known site history, such as fill, standing water or settlement',
+      'Site access for testing equipment',
+      'The structural engineer’s testing requirements, if already defined',
+    ],
   },
 };

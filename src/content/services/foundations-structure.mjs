@@ -79,6 +79,15 @@ export default {
       { q: 'What happens with termite protection?', a: 'Florida typically requires termite protection for new construction. Most often a licensed pest control provider treats the soil before the slab is poured and issues documentation for the building department; other approved methods may be specified.' },
     ],
     related: ['masonry-block', 'geotechnical-soil-testing', 'structural-engineering', 'foundation-repair', 'custom-homes'],
+    standalone: { mode: 'with-project', text: 'Foundations are normally built as part of a new home, addition or building we are managing. They follow sealed structural drawings and are placed by specialist concrete partners.' },
+    startWith: [
+      'Structural foundation drawings',
+      'The geotechnical report for the site',
+      'A survey showing the building location',
+      'The site and grading plan',
+      'Flood zone and required elevation information',
+      'Photos of the site and its access',
+    ],
   },
 
   'masonry-block': {
@@ -155,6 +164,14 @@ export default {
       { q: 'Can a new opening be cut in an existing block wall?', a: 'Often, yes, but it needs an engineer’s design for the new lintel and any reinforcement, and a permit. We handle that as a structural modification so the opening is properly supported.' },
     ],
     related: ['concrete-foundations', 'framing', 'stucco-siding', 'structural-modifications', 'custom-homes'],
+    standalone: { mode: 'with-project', text: 'Masonry is normally part of a new build or addition we are managing. Substantial standalone masonry, such as a long block site wall, can also be discussed.' },
+    startWith: [
+      'Structural drawings, including reinforcement and tie beam details',
+      'Architectural plans showing wall layout and openings',
+      'A survey, for walls near property lines',
+      'HOA guidelines for site walls, if applicable',
+      'Photos of the site or the existing structure',
+    ],
   },
 
   'framing': {
@@ -232,6 +249,14 @@ export default {
       { q: 'Wood or steel studs for a commercial space?', a: 'Many commercial interiors use steel studs because the building type or code requires non-combustible construction, and steel stays straight. Your design professional and code requirements typically set the choice.' },
     ],
     related: ['structural-engineering', 'masonry-block', 'roofing', 'insulation-drywall', 'home-additions'],
+    standalone: { mode: 'with-project', text: 'Framing is normally part of a new build, addition or renovation we are managing, where it is coordinated with the trades that follow.' },
+    startWith: [
+      'Architectural and structural drawings',
+      'Truss or engineered lumber layouts, if prepared',
+      'Wind-load and connection details from the engineer',
+      'Photos of the existing structure, for additions and renovations',
+      'The window and door schedule',
+    ],
   },
 
   'structural-steel': {
@@ -309,6 +334,15 @@ export default {
       { q: 'Can steel be added to an existing house?', a: 'Yes. Steel beams are often used to remove bearing walls or open rooms. The engineer designs the beam, posts and footings, and we plan access, shoring and installation as a structural modification.' },
     ],
     related: ['structural-engineering', 'structural-modifications', 'concrete-foundations', 'warehouse-improvements', 'commercial-new-construction'],
+    standalone: { mode: 'with-project', text: 'Structural steel is normally part of a larger renovation, commercial build or new construction project we are managing, coordinated with the engineer and the other trades.' },
+    startWith: [
+      'Structural drawings and steel details',
+      'Shop drawings, if already prepared',
+      'Architectural plans for the area',
+      'Existing building drawings, for work in an existing structure',
+      'Site access for deliveries and lifting equipment',
+      'Photos of the existing conditions',
+    ],
   },
 
   'structural-modifications': {
@@ -388,5 +422,14 @@ export default {
       { q: 'Do I need a permit to remove a wall?', a: 'Structural changes typically require a permit with engineered drawings. Condo and HOA properties may also need association approval.' },
     ],
     related: ['structural-engineering', 'structural-steel', 'framing', 'interior-demolition', 'whole-home-renovations'],
+    standalone: { mode: 'either', text: 'Structural modifications, such as removing a load-bearing wall, can be arranged on their own or as part of a renovation we manage. A licensed structural engineer designs the change and appropriately licensed partners carry it out.' },
+    startWith: [
+      'Photos of the wall or area to be changed',
+      'Photos of the attic or framing above, where accessible',
+      'Existing drawings of the building, if available',
+      'A sketch or description of the layout you want',
+      'Any prior engineering or inspection reports',
+      'Condo or HOA requirements for structural changes, if applicable',
+    ],
   },
 };

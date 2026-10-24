@@ -1,7 +1,7 @@
 // Merges the static catalog + written content with the owner's settings stored in the database
 // (availability, project minimum, pricing fields, optional text overrides).
 import { CATEGORIES, SERVICES, OVERVIEWS, DEFAULT_AVAILABILITY, categoryBySlug, serviceBySlug } from '../data/catalog.mjs';
-import { all, get, run, now, J } from './db.mjs';
+import { all, get, run, now, J, getSetting, setSetting } from './db.mjs';
 import overviewContent from '../content/overviews.mjs';
 
 const content = {};
@@ -12,6 +12,15 @@ export const AVAILABILITY = ['published', 'preview', 'hidden'];
 // Seed a row for every catalog service (never overwrites owner edits).
 for (const s of SERVICES) {
   run('INSERT OR IGNORE INTO services (slug, availability, pricing, overrides) VALUES (?,?,?,?)', s.slug, DEFAULT_AVAILABILITY, '{}', '{}');
+}
+
+// 2026-10-24: the owner confirmed the intended service scope (new construction, renovations, design and engineering
+// coordination, site work, structure, exterior, MEP, finishes, pools/outdoor, landscape, low voltage, cleanup,
+// engineered specialty repairs), which covers every catalog service. Services still in their seeded 'preview' state
+// and never edited by the owner are published once. Owner edits (updated_by set) are never overridden.
+if (!getSetting('migration.publishScope.2026-10-24')) {
+  const r = run("UPDATE services SET availability = 'published', updated_at = ? WHERE availability = 'preview' AND updated_by IS NULL", now());
+  setSetting('migration.publishScope.2026-10-24', { published: Number(r.changes), at: now() });
 }
 
 // A version number bumps on every owner edit so rendered-page caches can be invalidated.
@@ -53,6 +62,7 @@ export function service(slug) {
     priceFields: st.pricing || {},      // owner-entered figures (admin)
     price: publicPrice(st.pricing),     // figures cleared for public display, or null
     updatedAt: st.updated_at,
+    ownerEditedAt: st.updated_by ? st.updated_at : null,
   };
 }
 

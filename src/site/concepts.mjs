@@ -100,3 +100,35 @@ const ART = {
 };
 
 export const conceptArt = (id) => (ART[id] ? ART[id]() : '');
+
+// ---- Material studies: original palette boards (drawn here; colors and textures are illustrative, not product specs).
+export const MATERIAL_STUDIES = [
+  { id: 'warm-kitchen', title: 'Warm minimal kitchen', kind: 'Material study',
+    text: 'White oak cabinetry, honed limestone counters, lime-plaster walls and bronze hardware — quiet materials that age well and hide everyday wear.',
+    swatches: [['White oak', '#C9A57A', 'wood'], ['Honed limestone', '#D9D2C3', 'stone'], ['Lime plaster', '#EEE8DC', 'plain'], ['Aged bronze', '#8C6239', 'metal']] },
+  { id: 'coastal-exterior', title: 'Florida exterior', kind: 'Material study',
+    text: 'Smooth ivory stucco, a charcoal standing-seam roof, cypress soffits and shell-stone pavers — a palette chosen for strong sun, salt air and heavy rain.',
+    swatches: [['Smooth stucco', '#EDE6D8', 'plain'], ['Standing-seam metal', '#3A3A3A', 'seam'], ['Cypress', '#B07D4F', 'wood'], ['Shell stone', '#D7CBB4', 'terrazzo']] },
+  { id: 'commercial-lobby', title: 'Commercial lobby', kind: 'Material study',
+    text: 'Terrazzo flooring, walnut slat walls for acoustics, blackened steel and brushed bronze — durable surfaces for heavy daily traffic.',
+    swatches: [['Terrazzo', '#E3DDD1', 'terrazzo'], ['Walnut slats', '#5B3F2B', 'slat'], ['Blackened steel', '#2B2B2A', 'metal'], ['Brushed bronze', '#9C6B3C', 'metal']] },
+];
+function texture(kind, x, y, w, h, color) {
+  const lines = [];
+  if (kind === 'wood') for (let i = 0; i < 9; i++) lines.push(`<path d="M${x} ${y + 12 + i * (h / 9)}c${w * 0.3} -6 ${w * 0.6} 6 ${w} -2" stroke="rgba(0,0,0,.12)" fill="none"/>`);
+  if (kind === 'slat') for (let i = 1; i < 8; i++) lines.push(`<path d="M${x + i * (w / 8)} ${y}v${h}" stroke="rgba(0,0,0,.35)" stroke-width="2"/>`);
+  if (kind === 'seam') for (let i = 1; i < 5; i++) lines.push(`<path d="M${x + i * (w / 5)} ${y}v${h}" stroke="rgba(255,255,255,.18)" stroke-width="3"/>`);
+  if (kind === 'metal') lines.push(`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="url(#sheen)"/>`);
+  if (kind === 'stone') for (let i = 0; i < 4; i++) lines.push(`<path d="M${x + 6} ${y + 20 + i * 34}q${w / 2} ${i % 2 ? 10 : -8} ${w - 12} 4" stroke="rgba(0,0,0,.07)" fill="none"/>`);
+  if (kind === 'terrazzo') { let seed = color.length * 97; for (let i = 0; i < 46; i++) { seed = (seed * 9301 + 49297) % 233280; const r = seed / 233280; lines.push(`<circle cx="${x + 6 + (r * (w - 12))}" cy="${y + 6 + ((i * 37) % (h - 12))}" r="${1.5 + (i % 3)}" fill="${['#8C6239', '#4A463F', '#B9AF9F'][i % 3]}" opacity=".55"/>`); } }
+  return lines.join('');
+}
+export function materialArt(study) {
+  const W = 400, H = 300, w = 94, h = 178;
+  const sw = study.swatches.map(([name, color, kind], i) => {
+    const x = 12 + i * (w + 2), y = 44 + (i % 2) * 12;
+    return `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${color}"/>${texture(kind, x, y, w, h, color)}` +
+      `<text x="${x + 2}" y="${y + h + 22}" font-family="Instrument Sans, sans-serif" font-size="9" letter-spacing=".6" fill="#4A463F">${name.toUpperCase()}</text>`;
+  }).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Material study: ${study.swatches.map((s) => s[0]).join(', ')}" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="sheen" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".18"/></linearGradient></defs>${sw}</svg>`;
+}

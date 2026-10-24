@@ -73,6 +73,14 @@ export default {
       { q: 'Is the HVAC system cleaned too?', a: 'Registers and returns are vacuumed, and filters are replaced before turnover. Full duct cleaning, if needed, is handled by an HVAC contractor.' },
     ],
     related: ['punch-list-closeout', 'hauling-debris-removal', 'interior-painting', 'custom-homes', 'commercial-build-outs'],
+    standalone: { mode: 'with-project', text: 'Construction cleaning is normally part of a project we are managing, staged through the build. It may also be considered at the end of a substantial project by others, scoped from a site visit.' },
+    startWith: [
+      'The size of the building and the number of rooms, baths and floors',
+      'The stage of construction and the target date for inspection or move-in',
+      'Photos of the current condition, including glass, floors and fixtures',
+      'The window count and any special glass or high windows',
+      'Finish materials that need specific care, such as natural stone or specialty flooring',
+    ],
   },
 
   'punch-list-closeout': {
@@ -147,5 +155,13 @@ export default {
       { q: 'What documents will I receive?', a: 'Typically manuals, manufacturer warranties, as-built drawings, inspection records and photos of concealed work, organized by system.' },
     ],
     related: ['construction-cleaning', 'permit-coordination', 'custom-homes', 'commercial-build-outs', 'whole-home-renovations'],
+    standalone: { mode: 'with-project', text: 'Punch lists and closeout are normally part of a complete project we are managing. Where an owner needs help finishing a substantial project that others built, we can consider closeout support after reviewing the remaining work.' },
+    startWith: [
+      'The permit numbers and current status of open inspections',
+      'Any existing punch list or list of open items',
+      'Drawings, specifications and change orders for the project',
+      'Contact details for the trade partners and suppliers involved',
+      'Manuals, warranties and inspection records collected so far',
+    ],
   },
 };

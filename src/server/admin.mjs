@@ -7,7 +7,9 @@ import { get, all, run, now, newId, audit, tx, J, getSetting, setSetting, PRIVAT
 import { login, logout, currentStaff, checkCsrf, hashPassword, verifyPassword } from './auth.mjs';
 import { service, services, updateService, rawService, AVAILABILITY, invalidate, categories } from './services.mjs';
 import { createUploadLink, DOC_KINDS, storeFiles } from './forms.mjs';
-import { emailReady, notificationInbox } from './email.mjs';
+import { emailReady, notificationInbox, emailBlocker, retryOutbox } from './email.mjs';
+import { summary as eventSummary } from './events.mjs';
+import { CONFIRMED } from '../data/business.mjs';
 import { FACT_FIELDS } from '../data/business.mjs';
 import { TRADE_STATUSES, TRADE_STATUS_LABEL, INQUIRY_STATUSES, INQUIRY_STATUS_LABEL } from '../data/trades.mjs';
 import { FL_COUNTIES } from '../data/counties.mjs';
@@ -122,12 +124,13 @@ function dashboard(res, staff, url) {
   const recent = all('SELECT * FROM inquiries ORDER BY created_at DESC LIMIT 8');
   const expiring = all(`SELECT d.*, t.company, t.id app FROM trade_documents d JOIN trade_applications t ON t.id = d.application_id
     WHERE d.expires_on IS NOT NULL AND d.expires_on <= date('now', '+30 day') AND t.status != 'inactive' ORDER BY d.expires_on LIMIT 10`);
-  const failed = all("SELECT * FROM outbox WHERE status IN ('failed','not_configured') ORDER BY created_at DESC LIMIT 5");
+  const failed = all("SELECT * FROM outbox WHERE status IN ('failed','retrying','not_configured') ORDER BY created_at DESC LIMIT 8");
+  const ev = eventSummary(30);
   const svc = services({ includeHidden: true });
   const pub = svc.filter((s) => s.availability === 'published').length;
   const priced = svc.filter((s) => s.price).length;
   const warn = [];
-  if (!emailReady()) warn.push(`Email notifications are <strong>off</strong>: ${!EMAIL.provider ? 'no email provider is configured (RESEND_API_KEY)' : !EMAIL.from ? 'EMAIL_FROM is not set' : 'no verified notification inbox is set'}. New submissions are saved here; check this page regularly. <a href="/admin/settings/">Business details</a>`);
+  if (!emailReady()) warn.push(`Email notifications are <strong>off</strong>: ${esc(emailBlocker())}. Every submission is still saved here — check this page regularly. Unsent notifications from the last 3 days are delivered automatically once email is set up. <a href="/admin/settings/">Business details</a>`);
   if (!getSetting('business', {}).license?.verified) warn.push('No verified contractor license number is shown on the site. Florida generally requires it in advertising — add it under <a href="/admin/settings/">Business details</a> once confirmed.');
   page(res, 'Dashboard', `${flash(url)}<h1 class="h2">Dashboard</h1>
   ${list(warn, (w) => `<div class="alert info mt-2">${w}</div>`)}
@@ -140,6 +143,8 @@ function dashboard(res, staff, url) {
   </div>
   <h2 class="h3 mt-4">Recent inquiries</h2>${inquiryTable(recent)}
   ${expiring.length ? `<h2 class="h3 mt-4">Trade documents expiring within 30 days</h2><table class="a-table"><thead><tr><th>Partner</th><th>Document</th><th>Expires</th></tr></thead><tbody>${list(expiring, (d) => `<tr><td><a href="/admin/trades/${d.app}/">${esc(d.company)}</a></td><td>${esc(d.kind)}</td><td>${esc(fmtDate(d.expires_on))}</td></tr>`)}</tbody></table>` : ''}
+  <h2 class="h3 mt-4">Activity — last 30 days</h2><p class="small muted">Aggregate counts only (no cookies or personal data). Phone and email counts are link clicks, not completed calls or emails. Crawler counts use the visitor’s claimed identity and are indicative.</p>
+  ${ev.length ? `<table class="a-table"><thead><tr><th>Event</th><th>Detail</th><th>Count</th></tr></thead><tbody>${list(ev, (e) => `<tr><td>${esc(e.name)}</td><td>${esc(e.label)}</td><td>${e.n}</td></tr>`)}</tbody></table>` : '<p class="muted">No activity recorded yet.</p>'}
   ${failed.length ? `<h2 class="h3 mt-4">Notifications not delivered</h2><table class="a-table"><thead><tr><th>When</th><th>Subject</th><th>Status</th></tr></thead><tbody>${list(failed, (o) => `<tr><td>${esc(fmtDateTime(o.created_at))}</td><td>${esc(o.subject)}</td><td>${esc(o.status)} — ${esc(o.detail || '')}</td></tr>`)}</tbody></table>` : ''}`, staff);
 }
 
@@ -147,7 +152,7 @@ function dashboard(res, staff, url) {
 function inquiryTable(rows) {
   if (!rows.length) return '<p class="muted">Nothing yet.</p>';
   return `<div class="a-scroll"><table class="a-table"><thead><tr><th>Received</th><th>Ref</th><th>Name</th><th>Project</th><th>Location</th><th>Budget</th><th>Status</th></tr></thead><tbody>
-  ${list(rows, (r) => `<tr><td>${esc(fmtDateTime(r.created_at))}</td><td><a href="/admin/inquiries/${r.id}/">${esc(r.ref)}</a></td><td>${esc(r.name)}</td><td>${esc(r.market)} · ${esc(r.project_type)}${r.service ? ` · ${esc(service(r.service)?.name || r.service)}` : ''}</td><td>${esc(r.location)}</td><td>${esc(r.budget)}${r.below_minimum ? ' <span class="badge b-warn">below min</span>' : ''}</td><td>${badge(r.status, INQUIRY_STATUS_LABEL)}</td></tr>`)}
+  ${list(rows, (r) => `<tr><td>${esc(fmtDateTime(r.created_at))}</td><td><a href="/admin/inquiries/${r.id}/">${esc(r.ref)}</a>${r.is_test ? ' <span class="badge b-inactive">test</span>' : ''}</td><td>${esc(r.name)}</td><td>${esc(r.market)} · ${esc(r.project_type)}${r.service ? ` · ${esc(service(r.service)?.name || r.service)}` : ''}</td><td>${esc(r.location)}</td><td>${esc(r.budget)}${r.below_minimum ? ' <span class="badge b-warn">below min</span>' : ''}</td><td>${badge(r.status, INQUIRY_STATUS_LABEL)}</td></tr>`)}
   </tbody></table></div>`;
 }
 function inquiries(res, staff, url) {
@@ -229,6 +234,7 @@ function trade(res, staff, url, id) {
   const docs = all('SELECT d.*, f.name fname, f.size FROM trade_documents d LEFT JOIN files f ON f.id = d.file_id WHERE d.application_id = ? ORDER BY d.created_at DESC', id);
   const scope = J(r.approved_scope, { services: [], counties: [] });
   const newLink = url.searchParams.get('link');
+  const links = all('SELECT * FROM upload_links WHERE application_id = ? ORDER BY created_at DESC', id);
   const today = new Date().toISOString().slice(0, 10);
   page(res, r.company, `${flash(url)}<p><a href="/admin/trades/">← Trade partners</a></p>
   <div class="a-title"><h1 class="h2">${esc(r.company)}</h1>${badge(r.status, TRADE_STATUS_LABEL)}</div>
@@ -254,8 +260,9 @@ function trade(res, staff, url, id) {
       <div class="field"><label for="d-f">File</label><input id="d-f" type="file" name="files" required accept=".pdf,image/*"></div>
       <button class="btn small" type="submit">Add document</button></form>
     <form class="panel mt-3" method="post">${csrf(staff)}<input type="hidden" name="action" value="link">
-      <h3>Request documents securely</h3><p class="small muted">Creates a private upload link (valid 14 days) to send to the applicant. Status changes to “Documents needed”.</p>
-      <button class="btn small ghost" type="submit">Create upload link</button></form>
+      <h3>Request documents securely</h3><p class="small muted">Creates a private upload link (valid 14 days) to send to the applicant. Status changes to “Documents needed”. Links stop working when they expire, when revoked, or when the application is set to Inactive.</p>
+      ${links.length ? `<ul class="small">${list(links, (l) => `<li>Link created ${esc(fmtDate(l.created_at))} · ${l.revoked_at ? 'revoked' : l.expires_at < now() ? 'expired' : `active until ${esc(fmtDate(l.expires_at))}`} · ${l.used_count} upload(s)</li>`)}</ul>` : ''}
+      <button class="btn small ghost" type="submit">Create upload link</button>${links.some((l) => !l.revoked_at && l.expires_at > now()) ? ' <button class="btn small ghost" name="action" value="revoke">Revoke active links</button>' : ''}</form>
   </div>
   <form class="form panel" method="post">${csrf(staff)}<input type="hidden" name="action" value="review">
     <div class="field"><label for="t-st">Status</label><select id="t-st" name="status">${list(TRADE_STATUSES, (s) => `<option value="${s}"${s === r.status ? ' selected' : ''}>${TRADE_STATUS_LABEL[s]}</option>`)}</select>
@@ -271,6 +278,11 @@ async function tradeUpdate(req, res, staff, id) {
   if (!r) throw new HttpError(404, 'Not found');
   const { fields, files } = await postForm(req, staff, UPLOAD.maxTotalBytes + 1e6);
   const action = one(fields.action);
+  if (action === 'revoke') {
+    run('UPDATE upload_links SET revoked_at = ? WHERE application_id = ? AND revoked_at IS NULL', now(), id);
+    audit(staff.user.id, 'trade.uploadlink.revoke', 'trade', id);
+    return back(res, `/admin/trades/${id}/`, 'Upload links revoked.');
+  }
   if (action === 'link') {
     const token = createUploadLink(id, staff.user.id);
     if (['new', 'reviewing'].includes(r.status)) run('UPDATE trade_applications SET status = ?, updated_at = ? WHERE id = ?', 'documents_needed', now(), id);
@@ -450,9 +462,13 @@ function settings(res, staff, url) {
       <label class="check"><input type="checkbox" name="${f.key}_verified" value="1"${b[f.key]?.verified ? ' checked' : ''}> <span>Verified — show on the website</span></label></div>`)}
     <div class="panel"><div class="field"><label for="n-email">Notification inbox (receives new inquiries and applications)</label>
       <p class="hint">Mark verified only after confirming this mailbox exists and receives mail. Email provider: ${EMAIL.provider ? `configured (sender ${esc(EMAIL.from || 'EMAIL_FROM not set')})` : '<strong>not configured</strong> — set RESEND_API_KEY and EMAIL_FROM on the server'}.</p>
-      <input id="n-email" name="notify_email" type="email" value="${attr(n.email || '')}"></div>
+      <input id="n-email" name="notify_email" type="email" value="${attr(n.email || '')}" placeholder="${attr(CONFIRMED.email)}"></div>
       <label class="check"><input type="checkbox" name="notify_verified" value="1"${n.verified ? ' checked' : ''}> <span>Verified mailbox</span></label>
-      <p class="small mt-1">Status: ${emailReady() ? `<strong>on</strong> — sending to ${esc(notificationInbox())}` : '<strong>off</strong>'}</p></div>
+      <p class="small mt-1">Status: ${emailReady() ? `<strong>on</strong> — sending to ${esc(notificationInbox())}` : `<strong>off</strong> — ${esc(emailBlocker())}`}</p></div>
+    <div class="panel"><fieldset><legend>AI model-training crawlers (e.g. GPTBot, Google-Extended)</legend>
+      <p class="hint">Search and answer engines (Google, Bing, ChatGPT search) are always allowed. This only controls crawlers that collect content for training AI models.</p>
+      <label class="check"><input type="radio" name="ai_training" value="allow"${getSetting('aiTraining', 'allow') !== 'block' ? ' checked' : ''}> Allowed</label>
+      <label class="check"><input type="radio" name="ai_training" value="block"${getSetting('aiTraining', 'allow') === 'block' ? ' checked' : ''}> Not allowed</label></fieldset></div>
     <button class="btn" type="submit">Save business details</button></form>
   <h2 class="h3 mt-5">Change your password</h2>
   <form class="form panel mt-2 max-60" method="post">${csrf(staff)}<input type="hidden" name="action" value="password">
@@ -477,6 +493,8 @@ async function settingsSave(req, res, staff) {
     setSetting('business', b, staff.user.id);
     const email = str(fields.notify_email, 160).toLowerCase();
     setSetting('notify', { email, verified: one(fields.notify_verified) === '1' && /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(email) }, staff.user.id);
+    if (['allow', 'block'].includes(one(fields.ai_training))) setSetting('aiTraining', one(fields.ai_training), staff.user.id);
+    retryOutbox().catch(() => {});
     audit(staff.user.id, 'settings.update');
     invalidate();
     return back(res, '/admin/settings/', 'Saved.');

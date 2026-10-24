@@ -61,6 +61,20 @@ CREATE INDEX IF NOT EXISTS trades_created ON trade_applications(created_at);
 CREATE INDEX IF NOT EXISTS files_owner ON files(owner_kind, owner_id);
 `);
 
+// Later columns/tables, added in place so existing production data is preserved.
+for (const [t, col] of [
+  ['inquiries', 'idem_key TEXT'], ['inquiries', 'is_test INTEGER NOT NULL DEFAULT 0'],
+  ['trade_applications', 'idem_key TEXT'], ['trade_applications', 'is_test INTEGER NOT NULL DEFAULT 0'],
+  ['outbox', 'attempts INTEGER NOT NULL DEFAULT 0'], ['outbox', 'next_attempt_at TEXT'], ['outbox', 'reply_to TEXT'],
+  ['upload_links', 'revoked_at TEXT'],
+]) { try { db.exec(`ALTER TABLE ${t} ADD COLUMN ${col}`); } catch { /* already exists */ } }
+db.exec(`
+CREATE UNIQUE INDEX IF NOT EXISTS inquiries_idem ON inquiries(idem_key) WHERE idem_key IS NOT NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS trades_idem ON trade_applications(idem_key) WHERE idem_key IS NOT NULL;
+CREATE TABLE IF NOT EXISTS events (day TEXT NOT NULL, name TEXT NOT NULL, label TEXT NOT NULL DEFAULT '', count INTEGER NOT NULL DEFAULT 0,
+  PRIMARY KEY (day, name, label));
+`);
+
 export const now = () => new Date().toISOString();
 export const newId = (prefix, bytes = 9) => `${prefix}_${crypto.randomBytes(bytes).toString('base64url')}`;
 export const secret = () => crypto.randomBytes(32).toString('base64url');

@@ -77,6 +77,15 @@ export default {
       { q: 'Is a commercial pool different?', a: 'Yes. Commercial and community pools are generally treated as public pools, with additional health-department review and operating requirements beyond the building permit.' },
     ],
     related: ['pool-renovation', 'screen-enclosures', 'pavers-driveways-walkways', 'fences-gates', 'outdoor-kitchens'],
+    standalone: { mode: 'yes', text: 'Yes. A new pool or spa is commonly a substantial project on its own, and we also manage pools as part of a new home or a larger outdoor living project.' },
+    startWith: [
+      'Survey or plot plan showing setbacks, easements and the house footprint',
+      'Photos of the backyard and the access route for equipment',
+      'Your ideas for size, shape, depth, spa and finishes',
+      'HOA architectural guidelines, if any',
+      'Plans for decking, a screen enclosure or landscaping around the pool',
+      'Existing drawings or engineering, if any',
+    ],
   },
 
   'pool-renovation': {
@@ -151,6 +160,14 @@ export default {
       { q: 'Do I need a permit to renovate a pool?', a: 'It depends on the work and your jurisdiction. Resurfacing alone may not require one, while equipment, electrical and structural changes typically do. When permitted work triggers barrier requirements, they are addressed in the scope.' },
     ],
     related: ['pools-spas', 'pavers-driveways-walkways', 'screen-enclosures', 'electrical'],
+    standalone: { mode: 'yes', text: 'Yes. A full pool renovation – resurfacing, tile, coping, deck and equipment together – is a common standalone project; our focus is renovations of that scale rather than small one-off repairs.' },
+    startWith: [
+      'Photos of the pool interior, tile line, coping and deck',
+      'Approximate pool size and current finish type',
+      'Age and model of the pump, filter and heater, if known',
+      'Any known leaks, cracks or equipment problems',
+      'HOA or condo rules for pool and deck work, if any',
+    ],
   },
 
   'decks-lanais-patios': {
@@ -227,6 +244,14 @@ export default {
       { q: 'What deck materials handle Florida weather well?', a: 'Composite and other low-maintenance decking resist moisture, rot and insects. Whatever the decking, framing should be rated for exterior use and fasteners and connectors should be corrosion-resistant, especially near salt air.' },
     ],
     related: ['screen-enclosures', 'outdoor-kitchens', 'roofing', 'pavers-driveways-walkways', 'home-additions'],
+    standalone: { mode: 'either', text: 'Either. A deck, lanai or covered patio can be a substantial project on its own, or one part of an addition, renovation or outdoor living project.' },
+    startWith: [
+      'Survey or plot plan showing setbacks and easements',
+      'Photos of the area and how it meets the house',
+      'The rough size, use and type of cover you have in mind',
+      'Existing drawings of the house or roofline, if any',
+      'HOA architectural guidelines, if any',
+    ],
   },
 
   'screen-enclosures': {
@@ -301,6 +326,14 @@ export default {
       { q: 'Are screen enclosures affected by salt air?', a: 'Near the coast, salt air accelerates corrosion of fasteners and some frame components. Corrosion-resistant fasteners and periodic rinsing and inspection help extend service life.' },
     ],
     related: ['pools-spas', 'pool-renovation', 'decks-lanais-patios', 'storm-damage-reconstruction', 'structural-engineering'],
+    standalone: { mode: 'either', text: 'Either. A new screen enclosure is often hired on its own or alongside a new or renovated pool; rescreening is usually scoped as part of a larger enclosure or outdoor project.' },
+    startWith: [
+      'Survey or plot plan showing the pool, deck and house',
+      'Photos of the existing enclosure or the area to be enclosed',
+      'Approximate dimensions and the roof style you prefer',
+      'Existing enclosure drawings or permits, if any',
+      'HOA architectural guidelines, if any',
+    ],
   },
 
   'outdoor-kitchens': {
@@ -376,5 +409,13 @@ export default {
       { q: 'Where does outdoor shower water go?', a: 'It depends on the site and local requirements. Options include connection to the house drain, a dry well or planted areas. We review the options for your property during design.' },
     ],
     related: ['decks-lanais-patios', 'pools-spas', 'pavers-driveways-walkways', 'landscape-lighting', 'plumbing'],
+    standalone: { mode: 'either', text: 'Either. An outdoor kitchen can be a substantial project on its own or one part of a larger patio, lanai or pool project.' },
+    startWith: [
+      'Photos of the planned location and the nearby exterior wall',
+      'The appliances and features you want, such as a grill, refrigerator, sink or fire feature',
+      'Location of existing gas, water and electrical service, if known',
+      'Plans for any cover, lanai or enclosure over the kitchen',
+      'HOA architectural guidelines, if any',
+    ],
   },
 };

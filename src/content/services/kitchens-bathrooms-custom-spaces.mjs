@@ -81,6 +81,15 @@ export default {
       { q: 'Why do you want selections made before construction starts?', a: 'Selections determine dimensions, rough-in locations and order dates. Choosing a sink, faucet or range after rough-ins can mean rework; choosing cabinets late can delay the whole project.' },
     ],
     related: ['cabinetry-countertops', 'interior-design-selections', '3d-renderings', 'structural-modifications', 'whole-home-renovations'],
+    standalone: { mode: 'yes', text: 'A kitchen renovation is commonly hired as a standalone project, and it can also be one part of a whole-home renovation. We manage the full scope, from layout and selections through construction.' },
+    startWith: [
+      'Photos of the existing kitchen from each corner, plus the ceiling and any adjoining rooms',
+      'A floor plan or measurements, including ceiling height and window and door locations',
+      'Existing drawings, a designer’s layout or inspiration images, if any',
+      'Appliance, cabinet and countertop selections or preferences',
+      'Whether walls, plumbing or the gas range location may move',
+      'Condo or HOA renovation rules, if applicable',
+    ],
   },
 
   'bathroom-renovation': {
@@ -162,6 +171,15 @@ export default {
       { q: 'Is a curbless shower possible in my home?', a: 'Often, but it depends on the floor construction. On a slab, the area under the shower may need to be recessed; on a framed floor, joists may need modification. We assess this during design.' },
     ],
     related: ['tile', 'plumbing', 'accessibility-improvements', 'interior-design-selections', 'whole-home-renovations'],
+    standalone: { mode: 'yes', text: 'A bathroom renovation is commonly hired as a standalone project, and several baths are often renovated together or as part of a whole-home renovation. We focus on full bathroom renovations rather than small fixture repairs.' },
+    startWith: [
+      'Photos of the existing bathroom from each corner, including the shower or tub and vanity',
+      'Measurements or a floor plan of the room and the ceiling height',
+      'Fixture, tile and vanity selections or preferences',
+      'Whether fixtures will move or a tub will become a shower, including a curbless shower',
+      'Existing drawings or a designer’s layout, if any',
+      'Condo or HOA renovation rules, including waterproofing or sound requirements, if applicable',
+    ],
   },
 
   'closets-pantries-laundry': {
@@ -234,6 +252,14 @@ export default {
       { q: 'Should closet lighting be planned in?', a: 'Yes. Ceiling lighting alone often leaves hanging clothes in shadow. Lit shelving or rods and a light near the mirror are easier to install during construction than afterward.' },
     ],
     related: ['millwork-trim-doors', 'cabinetry-countertops', 'kitchen-renovation', 'home-additions'],
+    standalone: { mode: 'either', text: 'Closets, pantries and laundry rooms can be a project of their own when the work involves full built-ins or a room reconfiguration, or part of a larger renovation or addition we are managing. We focus on complete room projects rather than small shelving installs.' },
+    startWith: [
+      'Measurements or a floor plan of each room, including ceiling height and door swings',
+      'Photos of the existing spaces and their contents',
+      'A list of what needs to be stored – clothing, shoes, pantry goods, appliances, sports gear',
+      'Laundry appliance models and whether the washer and dryer will move',
+      'Finish preferences for cabinetry, countertops and hardware',
+    ],
   },
 
   'offices-theaters-wine-rooms': {
@@ -307,6 +333,15 @@ export default {
       { q: 'Can these rooms be added to an existing home?', a: 'Yes. Bonus rooms, spare bedrooms and dining rooms are often converted. We check the electrical capacity, HVAC and wall construction before recommending a plan.' },
     ],
     related: ['audio-home-theater', 'structured-cabling-wifi', 'millwork-trim-doors', 'hvac', 'custom-homes'],
+    standalone: { mode: 'either', text: 'A home office, media room or wine room can be a standalone project or part of a renovation, addition or new home we are managing. These rooms are planned as complete builds, including lighting, wiring, cooling and millwork.' },
+    startWith: [
+      'Measurements or a floor plan of the room, including ceiling height and windows',
+      'Photos of the existing space and adjoining rooms',
+      'How you plan to use the room, including seating, screens, storage or bottle count',
+      'Equipment selections such as projectors, speakers or wine-cooling units, if chosen',
+      'Existing drawings or a designer’s concept, if any',
+      'Notes on sound, light or temperature concerns',
+    ],
   },
 
   'accessibility-improvements': {
@@ -380,5 +415,14 @@ export default {
       { q: 'How does commercial accessibility work differ?', a: 'Commercial facilities must meet the ADA and Florida’s accessibility requirements. An architect or accessibility professional typically prepares the design, and the building department reviews and inspects it. We build to those drawings and coordinate the inspections.' },
     ],
     related: ['bathroom-renovation', 'commercial-restrooms', 'kitchen-renovation', 'home-additions', 'commercial-build-outs'],
+    standalone: { mode: 'either', text: 'Accessibility improvements can be a project of their own, such as a curbless shower conversion or a ramp, or part of a broader renovation we are managing. We focus on complete accessibility projects rather than single grab-bar installs.' },
+    startWith: [
+      'A description of who will use the space and the mobility needs to plan for',
+      'Photos and measurements of the bathroom, doorways, halls and entrances involved',
+      'Any recommendations from an occupational therapist or accessibility professional',
+      'Existing floor plans or drawings, if any',
+      'For commercial facilities: the existing plans and any accessibility review or notice received',
+      'Condo or HOA rules for ramps and exterior changes, if applicable',
+    ],
   },
 };

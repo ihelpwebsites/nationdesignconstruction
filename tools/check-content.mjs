@@ -47,6 +47,11 @@ function checkPage(slug, p, isOverview) {
   arr(w('scheduling'), p.scheduling, 3, 6);
   arr(w('faqs'), p.faqs, 3, 6, (wh, o) => { checkText(wh + '.q', o?.q); checkText(wh + '.a', o?.a); });
   arr(w('related'), p.related, 2, 6, (wh, r) => { if (!serviceBySlug[r] && !OVERVIEWS.some((o) => o.slug === r)) errors.push(`${wh}: unknown slug "${r}"`); if (r === slug) errors.push(`${wh}: links to itself`); });
+  if (process.env.REQUIRE_V2 !== '0') {
+    if (!p.standalone || !['yes', 'either', 'with-project'].includes(p.standalone.mode)) errors.push(`${w('standalone')}: missing or bad mode (yes | either | with-project)`);
+    else checkText(w('standalone.text'), p.standalone.text);
+    arr(w('startWith'), p.startWith, 3, 7);
+  }
   if (isOverview) arr(w('services'), p.services, 4, 20, (wh, r) => { if (!serviceBySlug[r]) errors.push(`${wh}: unknown service slug "${r}"`); });
 }
 

@@ -77,6 +77,15 @@ export default {
       { q: 'Do I need to decide on light fixtures early?', a: 'You should decide fixture types before rough-in, because box size, mounting and support depend on them. Final finishes can follow later as long as the fixture type does not change.' },
     ],
     related: ['generators', 'ev-charging', 'smart-home-shades', 'whole-home-renovations', 'landscape-lighting'],
+    standalone: { mode: 'either', text: 'Electrical work can be a project of its own – a panel or service upgrade, a lighting redesign or a whole-home rewire – or part of a renovation or new build we are managing. We focus on planned, substantial electrical scopes rather than small repairs.' },
+    startWith: [
+      'A clear photo of the panel label and the open panel door showing the breakers',
+      'The main breaker or service size, if you know it, and the age of the home',
+      'A list of planned additions such as appliances, a pool, an addition, a generator or EV charging',
+      'Floor plans or a sketch showing where you want new lighting, outlets and switches',
+      'Fixture selections or specification sheets, if you have chosen them',
+      'Photos of attic access and any areas where wiring will need to run',
+    ],
   },
 
   generators: {
@@ -156,6 +165,14 @@ export default {
       { q: 'Does a generator need maintenance?', a: 'Yes. Standby generators exercise themselves on a schedule and need periodic oil, filter and battery service. We can connect you with a servicing company and provide the equipment documentation at handover.' },
     ],
     related: ['electrical', 'hvac', 'storm-damage-reconstruction', 'custom-homes', 'permit-coordination'],
+    standalone: { mode: 'yes', text: 'A standby generator is commonly hired on its own as a complete installation, and it can also be planned into a new home or major renovation. We take on full generator systems, from sizing through startup.' },
+    startWith: [
+      'A list of what you want powered during an outage – the whole building or specific loads',
+      'Photos of the electrical panel, its label and the utility meter',
+      'Whether natural gas is available at the property, or where a propane tank could go',
+      'A survey or plot plan, or photos showing where the generator could sit',
+      'HOA architectural guidelines for equipment placement and screening, if any',
+    ],
   },
 
   'ev-charging': {
@@ -233,6 +250,14 @@ export default {
       { q: 'Should I prewire for EV charging in a new home?', a: 'It is worth considering. Running conduit and a circuit during construction costs far less effort than opening finished walls later, and it lets you add a charger whenever you need one.' },
     ],
     related: ['electrical', 'generators', 'custom-homes', 'commercial-build-outs', 'pavers-driveways-walkways'],
+    standalone: { mode: 'either', text: 'EV charging can be installed on its own or planned into a new home, renovation or commercial build-out. Standalone installations are a good fit when they include the circuit, any load management and the site work needed for a finished result.' },
+    startWith: [
+      'A photo of the panel label and the open panel showing the breakers',
+      'Photos of where you park and where you would like the charger mounted',
+      'Your vehicle models and, if chosen, the charger make and model',
+      'The approximate route and distance from the panel to the charger location',
+      'For condos and commercial sites: association rules, the parking layout and the number of chargers planned',
+    ],
   },
 
   plumbing: {
@@ -312,6 +337,15 @@ export default {
       { q: 'Do you handle gas lines for a range or outdoor kitchen?', a: 'Yes, through a licensed contractor who holds that scope. The gas piping is sized for all connected appliances and permitted and inspected separately where required.' },
     ],
     related: ['repiping', 'bathroom-renovation', 'kitchen-renovation', 'tile', 'outdoor-kitchens'],
+    standalone: { mode: 'either', text: 'Plumbing is hired on its own for projects such as a water heater change or a fixture relocation, and as part of the kitchens, baths, additions and new builds we manage. We focus on planned plumbing scopes rather than small repairs.' },
+    startWith: [
+      'A list of fixtures and appliances involved, with specification sheets if selected',
+      'Photos of the existing fixtures, the water heater and its data label',
+      'Floor plans or a sketch showing any fixtures that move',
+      'Whether the building is on a slab or has a crawlspace',
+      'Your fuel source for water heating or gas appliances',
+      'Condo or HOA rules for plumbing work and water shutoffs, if applicable',
+    ],
   },
 
   repiping: {
@@ -390,6 +424,15 @@ export default {
       { q: 'Will my insurance carrier accept the new piping?', a: 'Some carriers ask about the type and age of supply piping. We can provide permit and inspection documentation for the new system, but coverage decisions are made by your carrier.' },
     ],
     related: ['plumbing', 'insulation-drywall', 'interior-painting', 'whole-home-renovations', 'water-intrusion-repair'],
+    standalone: { mode: 'yes', text: 'Whole-building repiping is commonly hired as a standalone project, and it can also be folded into a whole-home renovation while walls are open. We price it as a complete scope, including access openings and patching.' },
+    startWith: [
+      'The number of bathrooms, kitchens and other fixtures and appliance connections',
+      'Photos of the existing supply piping at the water heater, under sinks and where the main line enters',
+      'Whether the home is single- or multi-story, and photos of attic access',
+      'Any correspondence from your insurance carrier about the plumbing',
+      'Your preference between PEX and copper, if you have one',
+      'Condo or association rules for water shutoffs and work hours, if applicable',
+    ],
   },
 
   hvac: {
@@ -470,5 +513,14 @@ export default {
       { q: 'Are mini-splits a good choice for an addition?', a: 'Often, yes. They avoid extending ductwork from a system that may not have spare capacity, and they let the new space be controlled on its own.' },
     ],
     related: ['mep-engineering', 'insulation-drywall', 'electrical', 'home-additions', 'smart-home-shades'],
+    standalone: { mode: 'either', text: 'HVAC work can be a project of its own – a system replacement, new ductwork or a zone for an addition – or part of a new build or renovation we are managing. We focus on properly designed system work rather than small service calls.' },
+    startWith: [
+      'Photos of the data labels on the outdoor unit and the air handler',
+      'Floor plans or a sketch of the home, with ceiling heights if known',
+      'Notes on comfort problems: rooms that run hot or cold, humidity or noise',
+      'Photos of the air handler location, the attic and visible ductwork',
+      'Recent changes to windows, insulation or square footage',
+      'For commercial spaces: the lease drawings or existing mechanical plans',
+    ],
   },
 };

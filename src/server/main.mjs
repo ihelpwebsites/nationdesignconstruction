@@ -9,7 +9,9 @@ import zlib from 'node:zlib';
 import crypto from 'node:crypto';
 import { PORT, SITE_URL, CANONICAL_HOST, INDEXING, ENV, TURNSTILE } from '../config.mjs';
 import { get, run, now, newId, audit, MEDIA_DIR } from './db.mjs';
-import { HttpError, sendJson } from './http.mjs';
+import { HttpError, sendJson, readBody, checkOrigin, rateLimit, clientIp } from './http.mjs';
+import { track, crawlerOf, CLIENT_EVENTS, safeLabel } from './events.mjs';
+import { retryOutbox } from './email.mjs';
 import { hashPassword } from './auth.mjs';
 import { route } from '../site/router.mjs';
 import { handleInquiry, handleTradeApplication, handleTradeDocs } from './forms.mjs';
@@ -24,12 +26,14 @@ const port = Number(process.argv[2] || PORT);
 
 run('DELETE FROM sessions WHERE expires_at < ?', now());
 setInterval(() => run('DELETE FROM sessions WHERE expires_at < ?', now()), 3600e3).unref();
+// Notification retries (no-op until email is configured).
+setInterval(() => { retryOutbox().catch((e) => console.error('outbox', e.message)); }, 60e3).unref();
 // First admin from environment variables (hosted first run), only while no staff account exists. Never logged.
 if (process.env.BOOTSTRAP_ADMIN_EMAIL && process.env.BOOTSTRAP_ADMIN_PASSWORD && !get('SELECT 1 FROM staff LIMIT 1')) {
   const email = process.env.BOOTSTRAP_ADMIN_EMAIL.toLowerCase().trim();
   run('INSERT INTO staff (id, email, name, pw_hash, created_at) VALUES (?,?,?,?,?)', newId('stf'), email, process.env.BOOTSTRAP_ADMIN_NAME || 'Admin', hashPassword(process.env.BOOTSTRAP_ADMIN_PASSWORD), now());
   audit('system', 'staff.bootstrap', 'staff', email);
-  console.log(`Created first admin ${email}`);
+  console.log('Created first admin account'); // no personal data in logs
 }
 
 const TYPES = { '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.json': 'application/json', '.svg': 'image/svg+xml',
@@ -67,6 +71,7 @@ function sendBody(req, res, status, type, body, headers = {}) {
 
 // Rendered-page cache (keyed by path + content version). Pages with forms carry a time token, so they're not cached.
 const cache = new Map();
+const query0 = (url) => Object.fromEntries(url.searchParams);
 const UNCACHED = new Set(['/start/', '/trade-partners/']);
 
 function staticFile(req, res, pathname) {
@@ -103,6 +108,18 @@ const server = http.createServer(async (req, res) => {
     if (!INDEXING) res.setHeader('x-robots-tag', 'noindex, follow');
 
     if (url.pathname.startsWith('/admin')) { res.setHeader('x-robots-tag', 'noindex, nofollow'); return await handleAdmin(req, res, url); }
+    if (url.pathname === '/api/event') {
+      // Aggregate counts only (no cookies, no personal data). Always 204 so it can't be used to probe anything.
+      if (req.method === 'POST') {
+        try {
+          checkOrigin(req);
+          rateLimit(`ev:${clientIp(req)}`, 120, 3600e3);
+          const body = JSON.parse((await readBody(req, 2048)).toString('utf8') || '{}');
+          if (CLIENT_EVENTS.has(body.e)) track(body.e, safeLabel(body.l));
+        } catch { /* ignore malformed or limited events */ }
+      }
+      res.writeHead(204, { 'cache-control': 'no-store', 'x-robots-tag': 'noindex' }).end(); return;
+    }
     if (url.pathname.startsWith('/api/')) {
       res.setHeader('x-robots-tag', 'noindex, nofollow');
       if (req.method !== 'POST') throw new HttpError(405, 'Method not allowed.');
@@ -137,9 +154,12 @@ const server = http.createServer(async (req, res) => {
     if (!path.extname(url.pathname) && !url.pathname.endsWith('/')) { res.writeHead(301, { location: url.pathname + '/' + url.search }).end(); return; }
     if (/[A-Z]/.test(url.pathname) && !path.extname(url.pathname) && !url.pathname.startsWith('/trade-partners/documents/')) { res.writeHead(301, { location: url.pathname.toLowerCase() + url.search }).end(); return; }
 
+    const bot = crawlerOf(req.headers['user-agent']);
+    if (bot) { track('crawler', bot); console.log(`crawler ${bot} ${url.pathname}`); } // claimed user agent; not verified
+    if (url.pathname === '/start/' && query0(url).service) track('start_view_from_service', safeLabel(query0(url).service));
     const key = `${url.pathname}|${contentVersion()}`;
     const query = Object.fromEntries(url.searchParams);
-    const cacheable = !UNCACHED.has(url.pathname) && !url.search;
+    const cacheable = !UNCACHED.has(url.pathname) && !url.pathname.startsWith('/trade-partners/documents/') && !url.search;
     let page = cacheable ? cache.get(key) : null;
     if (!page) {
       page = route(url.pathname, query);

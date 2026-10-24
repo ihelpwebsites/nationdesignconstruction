@@ -77,6 +77,14 @@ export default {
       { q: 'Who sets up the network itself?', a: 'The low-voltage partner configures the router, switches and access points. Your internet provider installs and activates the incoming service separately.' },
     ],
     related: ['cameras-access-control', 'smart-home-shades', 'commercial-av', 'electrical', 'commercial-build-outs'],
+    standalone: { mode: 'with-project', text: 'Usually as part of a larger project. Structured cabling should be planned into a new home, renovation or commercial build-out before the walls close.' },
+    startWith: [
+      'Floor plans or drawings of the home or space',
+      'Where you need wired connections and access points, and where the network equipment should go',
+      'Your internet service provider and where service enters the building',
+      'Any existing cabling or equipment you want to keep',
+      'For businesses, the requirements or contact details of your IT provider',
+    ],
   },
 
   'audio-home-theater': {
@@ -157,6 +165,14 @@ export default {
       { q: 'Does outdoor audio need special equipment?', a: 'Yes. Outdoor speakers should be rated for sun, humidity and rain, and wiring should be suitable for exterior conditions. Placement matters for coverage and for neighbors.' },
     ],
     related: ['offices-theaters-wine-rooms', 'smart-home-shades', 'structured-cabling-wifi', 'insulation-drywall', 'custom-homes'],
+    standalone: { mode: 'either', text: 'Either. A dedicated home theater or media room can be a substantial project on its own, and whole-home audio is usually planned with a new home or renovation.' },
+    startWith: [
+      'Floor plans or drawings of the rooms involved',
+      'Room dimensions and photos for a theater or media room',
+      'Which rooms should have audio and how you want to control it',
+      'Equipment you already own and want to reuse',
+      'Your preference for visible or concealed speakers and equipment',
+    ],
   },
 
   'smart-home-shades': {
@@ -237,6 +253,14 @@ export default {
       { q: 'Do shades help with heat?', a: 'Shades can reduce glare and solar heat entering through glass, particularly on east and west exposures. The effect depends on fabric, color and fit.' },
     ],
     related: ['audio-home-theater', 'structured-cabling-wifi', 'electrical', 'impact-windows-doors', 'whole-home-renovations'],
+    standalone: { mode: 'with-project', text: 'Usually as part of a larger project. Smart-home controls and motorized shades are normally planned with the electrical and window design of a new home or renovation we are managing.' },
+    startWith: [
+      'Floor plans or drawings with window locations',
+      'Window sizes and types for any motorized shades',
+      'The lighting, shades and systems you want to control',
+      'Existing devices or platforms you use and want to keep',
+      'Electrical plans for the project, if available',
+    ],
   },
 
   'cameras-access-control': {
@@ -318,6 +342,14 @@ export default {
       { q: 'Is monitoring included?', a: 'Monitoring is a separate service arrangement. We can include the equipment and wiring it requires, and you choose a monitoring provider.' },
     ],
     related: ['structured-cabling-wifi', 'fences-gates', 'fire-protection-signage-coordination', 'smart-home-shades', 'warehouse-improvements'],
+    standalone: { mode: 'either', text: 'Either. A complete camera or access-control system for a home or business can be hired on its own, and it is often part of a new build or build-out.' },
+    startWith: [
+      'Site plan or floor plan showing doors, entries and areas to cover',
+      'Photos of the entries, perimeter and equipment location',
+      'How many doors need access control and who needs access',
+      'Any existing system, cabling or monitoring service',
+      'For commercial properties, landlord or insurer requirements, if any',
+    ],
   },
 
   'commercial-av': {
@@ -398,5 +430,13 @@ export default {
       { q: 'Will the system work with the conferencing software we already use?', a: 'Most conference room equipment supports common platforms. Tell us what you use so the partner can confirm compatibility during design.' },
     ],
     related: ['structured-cabling-wifi', 'ceilings-partitions', 'commercial-build-outs', 'cameras-access-control', 'electrical'],
+    standalone: { mode: 'either', text: 'Either. Fitting out conference rooms or digital signage can be a project on its own, and commercial AV is commonly part of a build-out we are managing.' },
+    startWith: [
+      'Floor plans or reflected ceiling plans of the space',
+      'The rooms involved and how each will be used',
+      'The displays, conferencing platform and equipment you want to use',
+      'Requirements from your IT provider, if any',
+      'Landlord work letter or building rules for the space, if any',
+    ],
   },
 };

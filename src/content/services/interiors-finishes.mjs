@@ -76,6 +76,14 @@ export default {
       { q: 'Why does drywall work depend on the weather?', a: 'Joint compound dries more slowly in humid conditions. Running the air conditioning once the building is dried in helps the finish cure properly and reduces the chance of cracking or shrinkage.' },
     ],
     related: ['interior-painting', 'hvac', 'framing', 'ceilings-partitions', 'repiping'],
+    standalone: { mode: 'with-project', text: 'Insulation and drywall are normally part of a larger project we are managing, such as a renovation, addition or new build. Larger standalone scopes, such as reinsulating an attic or redoing the walls of an entire floor, can be considered on their own.' },
+    startWith: [
+      'Floor plans or the area of walls and ceilings involved',
+      'Photos of the attic, the existing insulation and any exposed framing',
+      'Ceiling heights and the finish and texture you want to match or replace',
+      'Any energy or insulation requirements in your plans, if available',
+      'Notes on moisture, sound or comfort concerns in the affected rooms',
+    ],
   },
 
   'interior-painting': {
@@ -154,6 +162,15 @@ export default {
       { q: 'Do I need to move out while you paint?', a: 'Usually not. Rooms are painted in sequence, low-odor coatings can be used, and furniture is moved and covered as needed.' },
     ],
     related: ['insulation-drywall', 'millwork-trim-doors', 'cabinetry-countertops', 'interior-design-selections', 'exterior-painting'],
+    standalone: { mode: 'either', text: 'Interior painting can be hired on its own for a whole home, a full floor or a complete commercial space, or as part of a renovation we are managing. We focus on substantial painting scopes rather than touch-ups of a single room.' },
+    startWith: [
+      'A list of the rooms and surfaces to be painted – walls, ceilings, trim, doors, cabinets',
+      'Photos of each room showing the current condition and any damage',
+      'Ceiling heights and whether there are stairwells or tall walls',
+      'Color selections or a designer’s schedule, if you have one',
+      'Whether the space will be occupied or furnished during the work',
+      'Condo or HOA rules for work hours and access, if applicable',
+    ],
   },
 
   tile: {
@@ -233,6 +250,15 @@ export default {
       { q: 'Why are there flexible joints instead of grout in some places?', a: 'Buildings and slabs move with temperature and moisture. Soft movement joints at walls, changes of plane and across large floor areas absorb that movement so tiles do not crack or lift.' },
     ],
     related: ['bathroom-renovation', 'kitchen-renovation', 'flooring', 'plumbing', 'accessibility-improvements'],
+    standalone: { mode: 'with-project', text: 'Tile is normally part of a bathroom, kitchen or flooring project we are managing, where the substrate, waterproofing and plumbing are coordinated together. Larger tile scopes, such as tiling an entire floor, can be considered on their own.' },
+    startWith: [
+      'Measurements or a floor plan of each area to be tiled',
+      'Tile selections with size, material and specification sheets, if chosen',
+      'Photos of the existing floors, walls or showers and their condition',
+      'Your layout preferences, such as patterns, niches and where cuts should fall',
+      'For showers: the planned fixtures and whether the floor will be curbless',
+      'Condo rules for sound underlayment or floor replacement, if applicable',
+    ],
   },
 
   flooring: {
@@ -313,6 +339,15 @@ export default {
       { q: 'My condo association requires sound underlayment – can you handle that?', a: 'Yes. We review the association’s requirements, select an underlayment that meets the specified rating, and provide product documentation for the association’s approval if needed.' },
     ],
     related: ['tile', 'polished-concrete-epoxy', 'millwork-trim-doors', 'stairs-railings', 'whole-home-renovations'],
+    standalone: { mode: 'either', text: 'Flooring can be a standalone project for a whole home or a full floor, or part of a larger renovation we are managing. We focus on substantial installations rather than patching a single room.' },
+    startWith: [
+      'A floor plan or measurements of the rooms and stairs involved',
+      'The flooring you are considering, with specification sheets if chosen',
+      'Photos of the existing flooring and what lies beneath it, if known',
+      'Whether the subfloor is concrete slab or wood framing',
+      'Condo or HOA requirements for sound underlayment and approvals',
+      'Whether furniture will need to be moved and the home will be occupied',
+    ],
   },
 
   'polished-concrete-epoxy': {
@@ -392,6 +427,15 @@ export default {
       { q: 'Are these floors slippery?', a: 'Polished and coated floors can be slippery when wet. Slip-resistant additives in coatings and lower-sheen polish levels improve traction in kitchens, entries and wash-down areas.' },
     ],
     related: ['flooring', 'concrete-foundations', 'warehouse-improvements', 'commercial-build-outs', 'restaurants-commercial-kitchens'],
+    standalone: { mode: 'either', text: 'Coatings and polished concrete are often hired on their own for a garage, warehouse or commercial floor, and also as part of a larger build-out or new building. We focus on complete floor systems rather than small spot repairs.' },
+    startWith: [
+      'The area of floor involved and a sketch or plan of the space',
+      'Photos of the existing slab, including cracks, stains or prior coatings',
+      'How the floor is used: vehicles, foot traffic, forklifts, food service or chemicals',
+      'The finish you want – polished, epoxy, polyaspartic, flake or solid color',
+      'Any known moisture issues or past flooding in the space',
+      'For commercial spaces: tenant or landlord requirements and work-hour limits',
+    ],
   },
 
   'cabinetry-countertops': {
@@ -470,6 +514,15 @@ export default {
       { q: 'Can I keep my cabinets and just replace the countertops?', a: 'Often, yes, if the cabinets are sound and level. Removing old tops can damage cabinets or walls, and a new sink may require cabinet changes, so we inspect first.' },
     ],
     related: ['kitchen-renovation', 'bathroom-renovation', 'millwork-trim-doors', 'closets-pantries-laundry', 'interior-design-selections'],
+    standalone: { mode: 'either', text: 'Cabinetry and countertops can be a substantial project on their own, such as replacing a full kitchen of cabinets and tops, and are also a core part of the kitchen and bath renovations we manage. We focus on complete cabinet and countertop scopes rather than single-piece repairs.' },
+    startWith: [
+      'A floor plan or measurements of the room, including ceiling height and window and door locations',
+      'Photos of the existing cabinets, countertops and walls',
+      'Appliance models and specification sheets, if selected',
+      'Your preferences for cabinet construction, door style and countertop material',
+      'Sink, faucet and cooktop selections that affect cutouts',
+      'Existing kitchen or bath drawings or a designer’s layout, if any',
+    ],
   },
 
   'millwork-trim-doors': {
@@ -549,6 +602,14 @@ export default {
       { q: 'Why does trim crack at the joints?', a: 'Wood moves with humidity. Acclimating materials, keeping the building conditioned, and using proper joinery and adhesives at joints reduce movement and cracking.' },
     ],
     related: ['interior-painting', 'flooring', 'stairs-railings', 'cabinetry-countertops', 'offices-theaters-wine-rooms'],
+    standalone: { mode: 'with-project', text: 'Millwork, trim and interior doors are normally part of a larger renovation or new build we are managing. Larger standalone scopes, such as replacing the trim and doors throughout a home, can be considered on their own.' },
+    startWith: [
+      'A list of rooms and the trim elements involved – baseboard, casing, crown, wainscoting, built-ins',
+      'Photos of the existing trim and doors, including close-ups of profiles you want to match',
+      'The number and sizes of interior doors to be replaced',
+      'Ceiling heights and any drawings for built-ins',
+      'Your finish plan: painted or stained, and the door hardware you have selected',
+    ],
   },
 
   'stairs-railings': {
@@ -629,5 +690,14 @@ export default {
       { q: 'What railing materials hold up outdoors?', a: 'Powder-coated aluminum, marine-grade stainless steel and appropriate glass systems perform well outdoors. Near the coast, salt air makes corrosion resistance a key part of the choice.' },
     ],
     related: ['millwork-trim-doors', 'flooring', 'structural-engineering', 'custom-homes', 'accessibility-improvements'],
+    standalone: { mode: 'either', text: 'Stair and railing work can be a project of its own, such as replacing a staircase’s treads and railings, or part of a renovation or new home we are managing. We focus on complete stair and railing scopes rather than small repairs.' },
+    startWith: [
+      'Photos of the existing stairs from the top, the bottom and the side',
+      'Measurements of the stair run, floor-to-floor height and railing lengths, if known',
+      'The tread and railing materials you are considering – wood, metal, glass or cable',
+      'Existing drawings or engineering for the stair, if any',
+      'Whether the railing is interior or exterior, such as a balcony or pool area',
+      'Condo or HOA rules for railing changes, if applicable',
+    ],
   },
 };

@@ -76,6 +76,15 @@ export default {
       { q: 'Will I see the cost of the design before construction is priced?', a: 'Yes. Design and coordination are scoped and priced up front, separately from construction, so you can decide how far to take the design before committing to a build.' },
     ],
     related: ['3d-renderings', 'feasibility-budgeting', 'structural-engineering', 'permit-coordination', 'custom-homes'],
+    standalone: { mode: 'either', text: 'You can bring us in for design coordination on its own, or as the first stage of a renovation, addition or new build we manage. It suits substantial projects where several design disciplines need to be aligned.' },
+    startWith: [
+      'Your goals, wish list and how you plan to use the space',
+      'Existing architectural drawings, engineering or sketches, if any',
+      'A survey or plot plan of the property',
+      'Photos of the existing home or site',
+      'HOA or condo architectural guidelines, if applicable',
+      'Any budget range or priorities you have already set',
+    ],
   },
 
   'interior-design-selections': {
@@ -151,6 +160,15 @@ export default {
       { q: 'What happens if a selection is over budget?', a: 'We show you the difference and offer alternatives that keep the design intent, so you can decide where to spend and where to save.' },
     ],
     related: ['3d-renderings', 'procurement-planning', 'kitchen-renovation', 'cabinetry-countertops', 'tile'],
+    standalone: { mode: 'either', text: 'Selections can be arranged on their own for a substantial renovation, or as part of a complete project we manage. The service is aimed at whole rooms and larger interiors rather than one-off item choices.' },
+    startWith: [
+      'Floor plans, or measurements of the rooms involved',
+      'Photos of the existing spaces',
+      'Inspiration images and finishes you like or want to avoid',
+      'A list of the rooms and items to be selected',
+      'Existing drawings or design concepts, if any',
+      'Where you want to spend and where you want to save',
+    ],
   },
 
   '3d-renderings': {
@@ -223,6 +241,14 @@ export default {
       { q: 'Are renderings worth it for a smaller project?', a: 'For a single room with simple finishes, samples and a good floor plan are often enough. Renderings are most useful when layout options, ceiling features, or material combinations are hard to judge from drawings.' },
     ],
     related: ['design-coordination', 'interior-design-selections', 'kitchen-renovation', 'custom-homes'],
+    standalone: { mode: 'either', text: 'Renderings can be ordered on their own to help you decide on a substantial design, or as part of a project we are designing and building.' },
+    startWith: [
+      'Architectural drawings or measured floor plans',
+      'Photos of the existing space or site',
+      'Material, finish and fixture preferences or selections',
+      'The specific rooms or views you want rendered',
+      'Any design concept or sketches already prepared',
+    ],
   },
 
   'feasibility-budgeting': {
@@ -297,6 +323,15 @@ export default {
       { q: 'Can you price plans that another builder has already bid?', a: 'Yes. We estimate from the drawings and specifications as they are, and we note any scope gaps or assumptions so you can compare proposals on the same basis.' },
     ],
     related: ['design-coordination', 'procurement-planning', 'survey-coordination', 'geotechnical-soil-testing', 'commercial-new-construction'],
+    standalone: { mode: 'either', text: 'Feasibility and budgeting is often requested on its own before you commit to a property or a design, and it is also the first step of projects we go on to manage.' },
+    startWith: [
+      'A survey or plot plan of the property',
+      'Concept sketches, or a list of the spaces and uses you need',
+      'Existing drawings, reports or site studies, if any',
+      'Zoning information or prior correspondence with the building department, if any',
+      'HOA, condo or deed restriction documents',
+      'The budget and timing constraints you are working within',
+    ],
   },
 
   'procurement-planning': {
@@ -370,6 +405,15 @@ export default {
       { q: 'What happens if an item is delayed?', a: 'Because items are tracked from order, delays are usually seen early. We let you know, adjust the sequence of work where possible, and present approved alternates if the delay would affect the schedule.' },
     ],
     related: ['interior-design-selections', 'feasibility-budgeting', 'impact-windows-doors', 'permit-coordination'],
+    standalone: { mode: 'with-project', text: 'Procurement planning is normally part of a larger project we are managing, where orders are tied to the construction schedule. For an owner coordinating their own substantial build, it can be arranged separately.' },
+    startWith: [
+      'Your selections list or finish schedule',
+      'Drawings and specifications for the project',
+      'The construction schedule or target milestones',
+      'Supplier quotes or orders already placed',
+      'Product approval information for windows, doors or roofing, if already chosen',
+      'Site conditions for deliveries and storage',
+    ],
   },
 
   'permit-coordination': {
@@ -447,5 +491,14 @@ export default {
       { q: 'Can you help with an open permit from a previous owner?', a: 'We can research the permit history and coordinate what is needed to close it, which may involve inspections, documentation or corrective work. That is assessed and priced once the situation is understood.' },
     ],
     related: ['design-coordination', 'survey-coordination', 'punch-list-closeout', 'procurement-planning', 'home-additions'],
+    standalone: { mode: 'either', text: 'Permit coordination can be arranged on its own for a substantial project with completed plans, or included in a project we manage.' },
+    startWith: [
+      'Architectural and engineering drawings intended for submission',
+      'A current survey of the property',
+      'Product approvals for windows, doors or roofing, where they apply',
+      'HOA or condo approval letters, if required',
+      'Any prior permit history or open permits on the property',
+      'Comments from the building department, if plans were already submitted',
+    ],
   },
 };

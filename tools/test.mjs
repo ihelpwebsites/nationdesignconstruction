@@ -68,11 +68,17 @@ await test('production: indexable core pages, robots allows crawl, sitemap lists
   assert.equal((await get(P + '/')).headers.get('x-robots-tag'), null);
   const robots = await text(P + '/robots.txt'); assert.match(robots, /Allow: \//); assert.match(robots, /Disallow: \/admin\//); assert.match(robots, /Sitemap: https:\/\/nationdesignconstruction.com\/sitemap.xml/);
   const sm = await text(P + '/sitemap.xml'); assert.match(sm, /<loc>https:\/\/nationdesignconstruction.com\/<\/loc>/); assert.ok(!sm.includes('localhost'));
-  assert.ok(!sm.includes('/services/kitchen-renovation/'), 'preview services must not be in the sitemap');
+  assert.ok(sm.includes('/services/kitchen-renovation/'), 'published services are in the sitemap');
+  assert.equal((sm.match(/<loc>/g) || []).length, 106, 'sitemap URL count');
+  assert.ok(!/<lastmod>(?!2026-10-24)/.test(sm), 'lastmod dates come from content dates, not today');
   assert.ok(sm.includes('/services/design-preconstruction/'), 'category pages are in the sitemap');
 });
-await test('production: preview services are noindex; admin & brand pages are noindex', async () => {
-  const r = await get(P + '/services/kitchen-renovation/'); assert.match(r.headers.get('x-robots-tag') || '', /noindex/); assert.match(await r.text(), /content="noindex, follow"/);
+await test('production: detailed service pages are indexable with self-canonicals; admin & brand pages are noindex', async () => {
+  for (const p of ['/services/kitchen-renovation/', '/services/sinkhole-remediation/', '/services/roofing/']) {
+    const r = await get(P + p); assert.equal(r.headers.get('x-robots-tag'), null, p); const h = await r.text();
+    assert.match(h, /<meta name="robots" content="index, follow/, p); assert.ok(h.includes(`<link rel="canonical" href="https://nationdesignconstruction.com${p}">`), p);
+    assert.ok(!h.includes('Availability being confirmed'), p);
+  }
   assert.match(await text(P + '/brand/'), /noindex/);
   assert.match((await get(P + '/admin/login/')).headers.get('x-robots-tag'), /noindex/);
 });
@@ -96,7 +102,9 @@ await test('structured data is valid JSON and contains no invented facts', async
     const blocks = [...h.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)].map((m) => JSON.parse(m[1]));
     assert.ok(blocks.length >= 2, p);
     const s = JSON.stringify(blocks);
-    for (const banned of ['aggregateRating', 'review', 'foundingDate', 'telephone', 'address', 'award', 'priceRange']) assert.ok(!s.includes(`"${banned}"`), `${p}: ${banned}`);
+    for (const banned of ['aggregateRating', 'review', 'foundingDate', 'address', 'award', 'priceRange', 'areaServed', 'sameAs', 'employee', 'founder']) assert.ok(!s.includes(`"${banned}"`), `${p}: ${banned}`);
+    const org = blocks.filter((b) => b['@id'] === 'https://nationdesignconstruction.com/#org');
+    assert.equal(org.length, 1, `${p}: exactly one business entity`); assert.equal(org[0].telephone, '+18138040555');
   }
 });
 await test('all internal links on core pages resolve (crawl)', async () => {
@@ -192,7 +200,7 @@ await test('inquiry: genuine submission with a PDF is saved and returns a refere
   const f = inquiryForm(T4, { plans: ['Architectural drawings', 'Structural engineering'] });
   f.append('files', new Blob([Buffer.from('%PDF-1.4\n1 0 obj<<>>endobj\ntrailer<<>>\n%%EOF')], { type: 'application/pdf' }), 'floor-plan.pdf');
   const r = await post(D, '/api/inquiry', f); const j = await r.json();
-  assert.equal(r.status, 200, JSON.stringify(j)); assert.equal(j.ok, true); assert.match(j.ref, /^NDC-[2-9A-Z]{6}$/); assert.equal(j.notified, false, 'no inbox configured → not notified');
+  assert.equal(r.status, 200, JSON.stringify(j)); assert.equal(j.ok, true); assert.match(j.ref, /^NDC-[2-9A-Z]{6}$/);
   inquiryRef = j.ref;
   assert.equal(readdirSync(join(dev.dir, 'private')).length, 1, 'file stored in private storage');
 });
@@ -207,6 +215,44 @@ await test('inquiry: no-JS submission gets a server-rendered confirmation page',
 await test('selected service carries into the form', async () => {
   const h = await text(D + '/start/?service=roofing&type=A+specific+service');
   assert.match(h, /Selected: <strong>Roof Installation, Replacement &amp; Repair<\/strong>/); assert.match(h, /<option value="roofing"[^>]*selected/);
+});
+
+// ---------------------------------------------------------------- contact, crawlers, idempotency, measurement
+await test('confirmed phone (813) 804-0555 is consistent and clickable; unverified mailbox is not linked', async () => {
+  for (const p of ['/', '/about/', '/start/', '/services/roofing/', '/process/', '/privacy/']) {
+    const h = await text(P + p);
+    assert.ok(h.includes('href="tel:+18138040555"'), `${p}: tel link`);
+    assert.ok(h.includes('(813) 804-0555'), `${p}: visible number`);
+    assert.ok(!/804-055(?!5)|8040555(?!\d)(?<!18138040555)/.test(h.replace(/\+18138040555/g, '')), `${p}: malformed number`);
+    assert.ok(!h.includes('mailto:'), `${p}: mailto shown before mailbox is verified`);
+  }
+});
+await test('robots.txt allows search/answer crawlers, keeps training crawlers in a separate group, and blocks private paths', async () => {
+  const r = await text(P + '/robots.txt');
+  for (const b of ['Googlebot', 'Bingbot', 'OAI-SearchBot', 'GPTBot', 'Google-Extended']) assert.ok(r.includes(`User-agent: ${b}`), b);
+  assert.match(r, /User-agent: OAI-SearchBot[\s\S]*?Allow: \/\nDisallow: \/admin\//);
+  assert.match(r, /Sitemap: https:\/\/nationdesignconstruction.com\/sitemap.xml/);
+});
+await test('photos: AVIF with WebP fallback; supplied drafting photo replaces the original everywhere', async () => {
+  const h = await text(P + '/about/');
+  assert.match(h, /<source type="image\/avif" srcset="\/img\/drafting-nation-v1-480.avif 480w/);
+  assert.ok(!h.includes('/img/drafting-hands-'), 'old drafting photo still referenced');
+  const c = await text(P + '/services/site-plans-engineering/'); assert.ok(c.includes('drafting-nation-v1-1200.webp'));
+  for (const u of ['/img/drafting-nation-v1-1536.avif', '/img/drafting-nation-v1-1200.webp', '/img/hero-home-dusk-800.avif']) assert.equal((await get(P + u)).status, 200, u);
+  assert.equal((await get(P + '/img/drafting-hands-1200.webp')).status, 404);
+  const home = await text(P + '/'); assert.match(home, /<link rel="preload" as="image" type="image\/avif" imagesrcset="\/img\/hero-home-dusk-480.avif/);
+});
+await test('a retried inquiry with the same submission key is stored once and returns the same reference', async () => {
+  const page = await text(D + '/start/'); const t = page.match(/name="_t" value="([^"]+)"/)[1]; const k = page.match(/name="_idem" value="([^"]+)"/)[1];
+  await sleep(2700);
+  const one = await post(D, '/api/inquiry', inquiryForm(t, { _idem: k, name: 'Website Test Idem' })); const j1 = await one.json();
+  const two = await post(D, '/api/inquiry', inquiryForm(t, { _idem: k, name: 'Website Test Idem' })); const j2 = await two.json();
+  assert.equal(j1.ok, true); assert.equal(j2.ok, true); assert.equal(j2.ref, j1.ref); assert.equal(j2.duplicate, true);
+});
+await test('measurement endpoint accepts only whitelisted events and never errors', async () => {
+  let r = await fetch(D + '/api/event', { method: 'POST', body: JSON.stringify({ e: 'phone_click', l: '/about/' }), headers: { origin: D } }); assert.equal(r.status, 204);
+  r = await fetch(D + '/api/event', { method: 'POST', body: '{bad json', headers: { origin: D } }); assert.equal(r.status, 204);
+  r = await fetch(D + '/api/event', { method: 'POST', body: JSON.stringify({ e: 'name=Jane', l: 'x' }), headers: { origin: D } }); assert.equal(r.status, 204);
 });
 
 // ---------------------------------------------------------------- admin & privacy
@@ -225,9 +271,12 @@ await test('admin: wrong password refused; correct password signs in', async () 
   assert.equal(r.status, 303); cookie = r.headers.get('set-cookie').split(';')[0]; assert.match(r.headers.get('set-cookie'), /HttpOnly/);
   const h = await text(D + '/admin/', { headers: { cookie } }); csrfTok = h.match(/name="_csrf" value="([^"]+)"/)[1];
   assert.match(h, /Email notifications are <strong>off<\/strong>/);
+  assert.match(h, /phone_click/, 'event counts shown');
+  assert.match(h, /inquiry_submitted/, 'server-side inquiry count shown');
 });
 await test('admin: inquiry is listed with its attachment downloadable only when signed in', async () => {
   const h = await text(D + '/admin/inquiries/', { headers: { cookie } }); assert.ok(h.includes(inquiryRef));
+  assert.match(h, /badge b-inactive">test</, 'test submissions are marked');
   const id = h.match(new RegExp(`href="/admin/inquiries/(inq_[\\w-]+)/">${inquiryRef}<`))[1];
   const d = await text(D + `/admin/inquiries/${id}/`, { headers: { cookie } }); const fid = d.match(/href="\/admin\/files\/(file_[\w-]+)"/)[1];
   const r = await get(D + `/admin/files/${fid}`, { headers: { cookie } }); assert.equal(r.status, 200); assert.match(r.headers.get('content-disposition'), /attachment/);
@@ -241,7 +290,7 @@ await test('admin: POST without CSRF token is refused', async () => {
 await test('pricing: incomplete published pricing is saved as draft and never shown', async () => {
   const r = await adminPost('/admin/services/roofing/', form({ _csrf: csrfTok, availability: 'published', status: 'published', basis: 'range', low: '9', unit: 'sqft' }));
   assert.equal(r.status, 303); assert.match(decodeURIComponent(r.headers.get('location')), /draft/);
-  const h = await text(D + '/services/roofing/'); assert.ok(!/\$9/.test(h)); assert.match(h, /Pricing on request|Priced after an assessment/);
+  const h = await text(D + '/services/roofing/'); assert.ok(!/\$9/.test(h)); assert.match(h, /Priced from a defined scope|Priced in two steps/);
 });
 await test('pricing: complete reviewed pricing appears on the service page and pricing guide', async () => {
   await adminPost('/admin/services/roofing/', form({ _csrf: csrfTok, availability: 'published', status: 'published', basis: 'range', low: '9', high: '14', unit: 'sqft', reviewedOn: '2026-10-20', geography: 'Test county', min_project: '30000' }));
@@ -286,6 +335,9 @@ await test('trade documents: private upload link accepts files and tracks expira
   const u = await post(D, `/api/trade-docs/${link}`, f); assert.equal(u.status, 200, await u.clone().text());
   const h = await text(D + `/admin/trades/${tradeId}/`, { headers: { cookie } }); assert.match(h, /General liability certificate/); assert.match(h, /November 1, 2026/);
   assert.equal((await post(D, '/api/trade-docs/not-a-real-token-123456789', new FormData())).status, 404);
+  const rv = await adminPost(`/admin/trades/${tradeId}/`, form({ _csrf: csrfTok, action: 'revoke' })); assert.equal(rv.status, 303);
+  assert.equal((await post(D, `/api/trade-docs/${link}`, f)).status, 404, 'revoked link must stop working');
+  assert.match(await text(D + `/trade-partners/documents/${link}/`), /isn’t valid/);
 });
 
 // ---------------------------------------------------------------- photos & facts

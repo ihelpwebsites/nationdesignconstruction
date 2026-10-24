@@ -79,6 +79,14 @@ export default {
       { q: 'Can I stay in the building during remediation?', a: 'Often, depending on where equipment works and what the engineer advises. We discuss access, noise and safety before work begins.' },
     ],
     related: ['foundation-repair', 'geotechnical-soil-testing', 'structural-engineering', 'concrete-restoration', 'stucco-siding'],
+    standalone: { mode: 'yes', text: 'Yes. Sinkhole remediation is commonly a substantial standalone project, and the scope is set only after licensed engineers or geologists complete their evaluation.' },
+    startWith: [
+      'Any existing engineering, geological or geotechnical reports',
+      'Photos of cracks, settlement or other visible signs',
+      'Survey or plot plan of the property',
+      'Insurance claim documents or scope reports, if a claim is involved',
+      'Records of prior repairs to the property, if any',
+    ],
   },
 
   'foundation-repair': {
@@ -158,6 +166,14 @@ export default {
       { q: 'Does insurance cover foundation repair?', a: 'We cannot advise on coverage. Please ask your insurer and review your policy. We can provide scope documentation and pricing.' },
     ],
     related: ['sinkhole-remediation', 'structural-engineering', 'concrete-foundations', 'retaining-walls-drainage', 'geotechnical-soil-testing'],
+    standalone: { mode: 'yes', text: 'Yes. Foundation repair is commonly a substantial standalone project, scoped from a licensed engineer’s assessment rather than a visual estimate.' },
+    startWith: [
+      'Any existing structural engineering or geotechnical reports',
+      'Photos of cracks, uneven floors, sticking doors or other signs',
+      'Survey or plot plan and original house drawings, if available',
+      'Records of any previous foundation work',
+      'Insurance claim documents, if a claim is involved',
+    ],
   },
 
   'concrete-restoration': {
@@ -237,6 +253,14 @@ export default {
       { q: 'Can residents stay during the work?', a: 'Usually, with balcony access restricted during repairs and advance notice for noisy work. The phasing plan is shared before work starts.' },
     ],
     related: ['waterproofing', 'water-intrusion-repair', 'stairs-railings', 'structural-engineering', 'exterior-painting'],
+    standalone: { mode: 'yes', text: 'Yes. Balcony and concrete restoration for a building is commonly a substantial standalone project, scoped from an engineer’s assessment; our focus is restoration programs rather than small patch repairs.' },
+    startWith: [
+      'Any existing engineering or condition assessment reports',
+      'Photos of spalling, cracking, rust staining or exposed rebar',
+      'Building drawings, if available',
+      'Association or building management requirements and access rules',
+      'Records of previous concrete repairs',
+    ],
   },
 
   'water-intrusion-repair': {
@@ -315,6 +339,14 @@ export default {
       { q: 'Do you handle mold?', a: 'Mold assessment and remediation are performed by appropriately licensed specialists. We coordinate them in the sequence of the repair.' },
     ],
     related: ['waterproofing', 'stucco-siding', 'roofing', 'impact-windows-doors', 'concrete-restoration'],
+    standalone: { mode: 'either', text: 'Either. Water intrusion repair can be a substantial project on its own, and it is often part of a larger exterior or renovation project; the scope depends on what testing finds.' },
+    startWith: [
+      'Photos of stains, damage and where water appears',
+      'When leaks happen – during heavy rain, wind-driven rain or all the time',
+      'Any moisture testing, inspection or engineering reports',
+      'Records of previous leak repairs',
+      'Insurance claim documents, if a claim is involved',
+    ],
   },
 
   'storm-damage-reconstruction': {
@@ -395,5 +427,13 @@ export default {
       { q: 'Can I upgrade while I rebuild?', a: 'Yes. Upgrades are priced separately from storm-damage repair so you can see the difference clearly.' },
     ],
     related: ['roofing', 'impact-windows-doors', 'water-intrusion-repair', 'generators', 'whole-home-renovations'],
+    standalone: { mode: 'yes', text: 'Yes. Storm damage reconstruction is commonly a substantial standalone project. We provide scope documentation and pricing for the work; we are not a public adjuster and do not negotiate claims.' },
+    startWith: [
+      'Photos of the damage, taken as soon as it is safe to do so',
+      'Insurance claim number and the adjuster’s scope documents, if a claim is involved',
+      'Any engineering or inspection reports done after the storm',
+      'Survey and existing drawings of the property, if available',
+      'Notes on temporary repairs or mitigation already done',
+    ],
   },
 };

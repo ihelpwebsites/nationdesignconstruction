@@ -1,10 +1,10 @@
 // "Discuss Your Project" — three-step inquiry form. Works without JavaScript (all steps shown, normal POST);
 // with JavaScript it becomes a stepper with inline validation and fetch submission.
 import { esc, attr, icon, list, money } from '../html.mjs';
-import { layout, crumbs } from '../layout.mjs';
+import { layout, crumbs, contactPanel } from '../layout.mjs';
 import { services, service } from '../../server/services.mjs';
 import { BUDGETS, TIMINGS, PLAN_ITEMS, TURNSTILE, UPLOAD } from '../../config.mjs';
-import { formToken } from '../../server/forms.mjs';
+import { formToken, newSubmissionKey } from '../../server/forms.mjs';
 
 export const PROJECT_TYPES = {
   residential: ['New custom home', 'Home addition', 'Whole-home renovation', 'Kitchen or bathroom', 'Pool or outdoor living', 'Exterior, roof or windows', 'Structural, foundation or storm repair', 'A specific service', 'Something else'],
@@ -59,9 +59,9 @@ export function startPage(query = {}) {
     <ol class="progress" aria-label="Form progress" data-progress hidden>
       <li aria-current="step">Project</li><li>Readiness</li><li>Contact</li>
     </ol>
-    <div class="alert err" role="alert" data-form-error hidden></div>
+    <div class="alert err" role="alert" tabindex="-1" data-form-error hidden></div>
     <form class="form" id="inquiry" action="/api/inquiry" method="post" enctype="multipart/form-data" novalidate data-stepper data-mins='${attr(JSON.stringify(mins))}'>
-      <input type="hidden" name="_t" value="${attr(formToken())}">
+      <input type="hidden" name="_t" value="${attr(formToken())}"><input type="hidden" name="_idem" value="${attr(newSubmissionKey())}">
       <input type="hidden" name="source" value="${attr(query.from || '/start/')}">
       <div class="hp" aria-hidden="true"><label>Leave this empty <input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
 
@@ -88,7 +88,7 @@ export function startPage(query = {}) {
           </div>
           <div class="field">
             <label for="f-location">Project location <span class="req" aria-hidden="true">*</span></label>
-            <p class="hint" id="hint-location">City and ZIP code, or county. We’re starting in Florida and will confirm whether we can serve your area.</p>
+            <p class="hint" id="hint-location">City and ZIP code, or county. We’re launching in Florida and will confirm whether your project is in an area we serve.</p>
             <input id="f-location" name="location" type="text" required maxlength="120" autocomplete="address-level2" aria-describedby="hint-location err-location">
             <p class="error-text" id="err-location"></p>
           </div>
@@ -173,6 +173,7 @@ export function startPage(query = {}) {
         <li><div><h3>We contact you</h3><p>Using the email or phone number you provide, to talk through scope, budget and timing.</p></div></li>
         <li><div><h3>A site visit or plan review</h3><p>If the project is a good fit, we’ll arrange the next step together.</p></div></li>
       </ol></div>
+    ${contactPanel()}
     <div class="panel"><h2>Prefer to read first?</h2><ul class="toc"><li><a href="/process/">Our process</a></li><li><a href="/pricing/">How pricing works</a></li><li><a href="/services/">All services</a></li></ul></div>
   </aside>
 </div></section>`;

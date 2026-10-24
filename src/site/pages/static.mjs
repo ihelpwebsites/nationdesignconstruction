@@ -1,12 +1,13 @@
 // Market landing pages, process, about, pricing guide, design inspiration, trade partners, privacy, 404, brand.
 import { esc, attr, icon, list, UNIT_NAME, money, fmtDate } from '../html.mjs';
-import { layout, crumbs, pic, credit, ctaBand, faqBlock } from '../layout.mjs';
+import { layout, crumbs, pic, credit, ctaBand, faqBlock, phoneLink, contactPanel } from '../layout.mjs';
 import { categories, overviews, services } from '../../server/services.mjs';
-import { PROCESS, PRINCIPLES } from '../../content/company.mjs';
+import { PROCESS, PRINCIPLES, RESPONSIBILITIES } from '../../content/company.mjs';
+import { PAGE_DATES } from '../../data/lastmod.mjs';
 import { STORY, STORY_LABEL, STORY_HEADING, STORY_CLOSE } from '../../content/story.mjs';
-import { CONCEPTS, conceptArt } from '../concepts.mjs';
+import { CONCEPTS, conceptArt, MATERIAL_STUDIES, materialArt } from '../concepts.mjs';
 import { publishedPhotos } from '../../server/photos.mjs';
-import { formToken, uploadLink, DOC_KINDS } from '../../server/forms.mjs';
+import { formToken, newSubmissionKey, uploadLink, DOC_KINDS } from '../../server/forms.mjs';
 import { TRADES, PROJECT_SIZES, INSURANCE_STATUS } from '../../data/trades.mjs';
 import { FL_COUNTIES } from '../../data/counties.mjs';
 import { facts } from '../../data/business.mjs';
@@ -96,9 +97,14 @@ export function processPage() {
   <div class="prose stack">
     <p>Your project lead coordinates designers, engineers, trade partners, suppliers and inspectors, and is the person you call. Updates come on a schedule agreed at the start — not only when something goes wrong.</p>
     <p>Decisions you need to make are listed with the date they’re needed by, so selections don’t hold up the work. When a change is requested or a condition is discovered, you receive the cost and schedule effect in writing before the work proceeds.</p>
-    <h3>Our delivery model</h3>
-    <p>We use specialist subcontractors and licensed professional partners for trade work, architecture and engineering. Our role is planning, coordination, logistics, supervision and quality control — and accountability for the whole.</p>
+    <p>Scope, pricing, changes, scheduling and quality checks are handled the same way on every project: in writing, before the work they affect.</p>
+    <p>${phoneLink('textlink', `Call ${facts().phone}`)}</p>
   </div>
+</div></section>
+<section class="section stone" id="responsibilities" aria-labelledby="resp-h"><div class="wrap">
+  <div class="section-head split"><div><p class="eyebrow">Accountability</p><h2 id="resp-h">Who is responsible for what.</h2></div>
+    <p class="lede">We lead the project and answer for the result. Licensed professionals and specialist trades carry out the parts of the work their licenses and skills require.</p></div>
+  <div class="resp-grid">${list(RESPONSIBILITIES, (r, i) => `<div class="resp${i === 0 ? ' lead' : ''}"><h3>${esc(r.who)}</h3><ul class="ticks">${list(r.items, (x) => `<li>${esc(x)}</li>`)}</ul></div>`)}</div>
 </div></section>
 ${ctaBand()}`;
   return layout({ title: 'Our Design & Construction Process', description: 'How Nation Design & Construction runs a project: conversation, discovery, design or plan review, scope and pricing, permits, construction, quality checks and turnover.', path: '/process/', body, jsonld: [c.ld] });
@@ -111,7 +117,7 @@ export function aboutPage() {
   const body = `
 <section class="page-hero"><div class="wrap">
   ${c.html}<p class="eyebrow">About</p><h1>A construction company that takes design seriously.</h1>
-  <p class="lede">Nation Design &amp; Construction is a residential and commercial construction company starting in Florida. We handle complete projects — from concept and planning through construction and final cleanup — as well as substantial standalone projects, and we welcome clients who already have drawings, engineering or site plans.</p>
+  <p class="lede">Nation Design &amp; Construction is a residential and commercial construction company launching in Florida. We handle complete projects — from concept and planning through construction and final cleanup — as well as substantial standalone projects, and we welcome clients who already have drawings, engineering or site plans.</p>
 </div></section>
 
 <section class="story" id="our-story" aria-labelledby="story-h"><div class="wrap story-grid">
@@ -129,14 +135,18 @@ export function aboutPage() {
     <p class="eyebrow">Our approach</p>
     <h2 id="approach-h">How we work</h2>
     <p>Clients usually have to choose between a design-led firm that hands drawings to someone else to build, and a builder for whom design is an afterthought. We close that gap. If you need design, we coordinate it from early layouts through construction documents; if you already have plans, we read them carefully, price them honestly and build them faithfully.</p>
-    <p>We work with specialist subcontractors and professional partners — licensed trades, architects, engineers and designers — chosen for the specific work. We manage coordination, logistics, supervision and quality, and you have one main point of contact throughout. Trade partners are prequalified, with approval specific to the services and areas they cover (<a href="/trade-partners/">trade partners can apply here</a>).</p>
-    <p>${f.serviceArea ? `We currently serve ${esc(f.serviceArea)}.` : 'We’re starting in Florida. Tell us where your project is and we’ll confirm whether it’s in an area we can serve well.'}</p>
+    <p>We are responsible for the scope, the price, the schedule, site supervision and quality checks — and we are your one main point of contact from the first conversation to the final walkthrough. Specialist trade partners and licensed design professionals, chosen for the specific work and prequalified by service and area, carry out their parts under our coordination (<a href="/process/#responsibilities">who is responsible for what</a>).</p>
+    <p>${f.serviceArea ? `We serve ${esc(f.serviceArea)}.` : 'We’re launching in Florida. Tell us where your project is and we’ll confirm, before any site visit, whether it’s an area we serve.'}</p>
+    ${f.leadership || f.license || f.insurance ? `<dl class="facts">${f.leadership ? `<dt>Leadership</dt><dd>${esc(f.leadership)}</dd>` : ''}${f.license ? `<dt>License</dt><dd>${esc(f.license)}</dd>` : ''}${f.insurance ? `<dt>Insurance</dt><dd>${esc(f.insurance)}</dd>` : ''}</dl>` : ''}
     <p><a class="textlink" href="/process/">See our process, step by step ${icon('arrow')}</a></p>
   </div>
-  <figure><div class="fig r45">${pic('drafting-hands', { sizes: '(min-width: 960px) 45vw, 100vw' })}</div><figcaption class="credit">${credit('drafting-hands')}</figcaption></figure>
+  <div class="stack-lg">
+    <figure><div class="fig r43">${pic('drafting-hands', { sizes: '(min-width: 960px) 45vw, 100vw' })}</div><figcaption class="credit">${credit('drafting-hands')}</figcaption></figure>
+    ${contactPanel({ heading: 'Talk to us', note: 'Or send your project details through the form — you can attach plans and photos.' })}
+  </div>
 </div></section>
 ${ctaBand({ title: 'Tell us what this place will mean to you.' })}`;
-  return layout({ title: 'About Nation Design & Construction', description: 'A design-focused residential and commercial construction company starting in Florida — complete projects or work from your existing plans, with one point of contact.', path: '/about/', body, jsonld: [c.ld] });
+  return layout({ title: 'About Nation Design & Construction', description: 'A design-focused residential and commercial construction company launching in Florida — complete projects or work from your existing plans, with one point of contact.', path: '/about/', body, jsonld: [c.ld] });
 }
 
 // ---- Pricing guide ------------------------------------------------------------------------------------
@@ -190,8 +200,13 @@ export function inspirationPage() {
   <div class="grid c3">${list(CONCEPTS, (cn) => `<article class="concept"><div class="art"><span class="label-chip">Design concept</span>${conceptArt(cn.id)}</div><div class="body"><p class="small muted">${esc(cn.kind)}</p><h2 class="h3">${esc(cn.title)}</h2><p>${esc(cn.text)}</p></div></article>`)}
   ${list(uploaded, (p) => `<article class="concept"><div class="art"><span class="label-chip">Design concept</span><img src="/media/${p.id}.${p.ext}" alt="${attr(p.alt)}" loading="lazy" width="${p.width || 1200}" height="${p.height || 900}" style="object-fit:cover;width:100%;height:100%"></div><div class="body"><h2 class="h3">${esc(p.title)}</h2>${p.caption ? `<p>${esc(p.caption)}</p>` : ''}</div></article>`)}</div>
 </div></section>
+<section class="section stone" aria-labelledby="mat-h"><div class="wrap">
+  <div class="section-head split"><div><p class="eyebrow">Material studies</p><h2 id="mat-h">Palettes chosen for Florida light and daily use.</h2></div>
+    <p class="lede">Illustrative palette boards — colors and textures are drawn, not photographs or product specifications. Final selections are made with you from physical samples.</p></div>
+  <div class="grid c3">${list(MATERIAL_STUDIES, (m) => `<article class="concept"><div class="art"><span class="label-chip">Material study</span>${materialArt(m)}</div><div class="body"><h3>${esc(m.title)}</h3><p>${esc(m.text)}</p></div></article>`)}</div>
+</div></section>
 ${ctaBand({ title: 'Have an idea of your own?' })}`;
-  return layout({ title: 'Design Inspiration', description: 'Clearly labeled design concepts from Nation Design & Construction — layouts and massing studies for homes, outdoor living and commercial spaces.', path: '/design-inspiration/', body, jsonld: [c.ld] });
+  return layout({ title: 'Design Inspiration', description: 'Clearly labeled design concepts and material studies from Nation Design & Construction — layouts, massing studies and palettes for homes, outdoor living and commercial spaces.', path: '/design-inspiration/', body, jsonld: [c.ld] });
 }
 
 // ---- Trade partners ----------------------------------------------------------------------------------
@@ -204,9 +219,9 @@ export function tradePage() {
 </div></section>
 <section class="section tight"><div class="wrap split top">
   <div class="form-shell">
-    <div class="alert err" role="alert" data-form-error hidden></div>
+    <div class="alert err" role="alert" tabindex="-1" data-form-error hidden></div>
     <form class="form" id="trade" action="/api/trade-application" method="post" novalidate data-simple-form>
-      <input type="hidden" name="_t" value="${attr(formToken())}">
+      <input type="hidden" name="_t" value="${attr(formToken())}"><input type="hidden" name="_idem" value="${attr(newSubmissionKey())}">
       <div class="hp" aria-hidden="true"><label>Leave this empty <input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
       <div class="two-col">
         <div class="field"><label for="t-company">Company name <span class="req" aria-hidden="true">*</span></label><input id="t-company" name="company" required maxlength="120" autocomplete="organization" aria-describedby="err-company"><p class="error-text" id="err-company"></p></div>
@@ -221,7 +236,7 @@ export function tradePage() {
       <fieldset><legend>Florida counties you serve <span class="req" aria-hidden="true">*</span></legend>
         <details class="panel"><summary>Choose counties</summary><div class="choices c3 mt-2">${list(FL_COUNTIES, (cn) => `<label class="check"><input type="checkbox" name="counties" value="${attr(cn)}"> ${esc(cn)}</label>`)}</div></details>
         <p class="error-text" id="err-counties"></p></fieldset>
-      <div class="field"><label for="t-license">License information <span class="muted small">(where applicable)</span></label><p class="hint">License type and number, and the name it’s issued to. We verify licenses independently.</p><input id="t-license" name="license_info" maxlength="300"></div>
+      <div class="field"><label for="t-license">License information <span class="muted small">(where applicable)</span></label><p class="hint">License type and number, and the name it’s issued to — used to check license status during review.</p><input id="t-license" name="license_info" maxlength="300"></div>
       <div class="two-col">
         <div class="field"><label for="t-gl">General liability insurance <span class="req" aria-hidden="true">*</span></label><select id="t-gl" name="gl_status" required aria-describedby="err-gl_status"><option value="">Choose one</option>${list(INSURANCE_STATUS.gl, (x) => `<option>${esc(x)}</option>`)}</select><p class="error-text" id="err-gl_status"></p></div>
         <div class="field"><label for="t-wc">Workers’ compensation <span class="req" aria-hidden="true">*</span></label><select id="t-wc" name="wc_status" required aria-describedby="err-wc_status"><option value="">Choose one</option>${list(INSURANCE_STATUS.wc, (x) => `<option>${esc(x)}</option>`)}</select><p class="error-text" id="err-wc_status"></p></div>
@@ -258,7 +273,7 @@ export function tradeDocsPage(token) {
   <p class="lede">${ok ? `For application ${esc(link.app.ref)} — ${esc(link.app.company)}. Files are stored privately and only our team can open them.` : 'It may have expired. Please contact us for a new link.'}</p>
 </div></section>
 ${ok ? `<section class="section tight"><div class="wrap narrow"><div class="form-shell">
-  <div class="alert err" role="alert" data-form-error hidden></div>
+  <div class="alert err" role="alert" tabindex="-1" data-form-error hidden></div>
   <form class="form" action="/api/trade-docs/${attr(token)}" method="post" enctype="multipart/form-data" novalidate data-simple-form>
     <div class="field"><label for="d-kind">Document type</label><select id="d-kind" name="kind">${list(DOC_KINDS, (k) => `<option>${esc(k)}</option>`)}</select></div>
     <div class="field"><label for="d-exp">Expiration date <span class="muted small">(if it has one)</span></label><input id="d-exp" name="expires_on" type="date"></div>
@@ -277,16 +292,16 @@ export function privacyPage() {
   <h2>What we collect</h2>
   <p><strong>Project inquiries:</strong> the details you enter — project type, location, readiness, budget range, timing, name, email, phone, description — and any plans or photos you attach.</p>
   <p><strong>Trade-partner applications:</strong> company and contact details, trades, counties served, license information you provide, insurance status, project size, capacity and project examples; and, if we later request them, documents you upload through a private link.</p>
-  <p><strong>Technical data:</strong> to prevent abuse, we keep a one-way hashed form of the network address a form was sent from, and our hosting provider keeps standard server logs. This site does not use advertising or analytics cookies. A sign-in cookie is used only for our staff’s management area.${TURNSTILE.siteKey ? ' Forms are protected by Cloudflare Turnstile, which processes limited technical data to tell people from automated traffic.' : ''}</p>
+  <p><strong>Technical data:</strong> to prevent abuse, we keep a one-way hashed form of the network address a form was sent from. Our hosting provider (Render) keeps standard server logs. This site uses no advertising or analytics cookies and no third-party tracking scripts. We count a few events in aggregate — for example how many inquiries were completed, how many times the phone link was tapped, which form steps produced errors, and how often search-engine crawlers visit — as daily totals that contain no names, contact details or form answers. A sign-in cookie is used only for our staff’s management area.${TURNSTILE.siteKey ? ' Forms are protected by Cloudflare Turnstile, which processes limited technical data to tell people from automated traffic.' : ''}</p>
   <h2>How we use it</h2>
   <p>To respond to your inquiry or application and to discuss and deliver your project. Your project-contact permission covers that only. We send news or updates only if you separately opted in, and you can opt out at any time.</p>
   <h2>Who can see it</h2>
-  <p>Submissions and uploaded files are stored privately and are available only to our signed-in staff. We may share project information with design professionals or trade partners when needed to prepare pricing or deliver your project. We do not sell personal information.</p>
+  <p>Submissions and uploaded files are stored privately on our hosting provider and are available only to our signed-in staff; uploaded files are never publicly linked. When email notifications are enabled, a summary of each new inquiry or application is sent to our business inbox through our email provider. We may share project information with design professionals or trade partners when needed to prepare pricing or deliver your project. We do not sell personal information.</p>
   <h2>Retention and your choices</h2>
-  <p>We keep inquiries and applications for as long as needed to respond and for our business records, and delete them on request where we’re not required to keep them. To ask for a copy, a correction or deletion, ${f.email ? `email <a href="mailto:${attr(f.email)}">${esc(f.email)}</a>` : 'reply to any message we send you or mention it in a new inquiry'}.</p>
+  <p>We keep inquiries and applications for as long as needed to respond and for our business records, and delete them on request where we’re not required to keep them. To ask for a copy, a correction or deletion, call ${esc(f.phone)}${f.email ? ` or email <a href="mailto:${attr(f.email)}">${esc(f.email)}</a>` : ''}, or mention it in a new inquiry.</p>
   <h2>Photography</h2>
   <p>Photographs labeled “representative” are licensed stock images and do not show our completed work. Items labeled “design concept” are concepts, not completed projects.</p>
-  <p class="small muted">Last updated ${fmtDate(new Date().toISOString().slice(0, 10))}.</p>
+  <p class="small muted">Last updated ${fmtDate(PAGE_DATES['/privacy/'])}.</p>
 </div></section>`;
   return layout({ title: 'Privacy Notice', description: 'How Nation Design & Construction handles information submitted through this website.', path: '/privacy/', body, jsonld: [c.ld] });
 }

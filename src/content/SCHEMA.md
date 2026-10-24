@@ -70,6 +70,10 @@ export default {
     scheduling: ['3–5 bullets: what affects timing (no durations)'],
     faqs: [{ q: 'Question?', a: '2–4 sentence answer' }],                           // 3–5 FAQs, genuinely useful
     related: ['3–5 slugs from the catalog list you were given'],
+    // v2 (2026-10-24)
+    standalone: { mode: 'yes' | 'either' | 'with-project',
+      text: '1–2 sentences: can a customer hire this on its own, or is it normally part of a larger project? Speak to the substantial-work focus without numbers (no "handyman", no minimum amounts).' },
+    startWith: ['3–6 bullets: the information or documents that let us scope and price THIS work, e.g. "Photos of the existing roof and attic", "Survey or plot plan", "HOA architectural guidelines", "Existing drawings or engineering, if any". Specific to the service.'],
   },
 };
 ```

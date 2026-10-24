@@ -80,6 +80,15 @@ export default {
       { q: 'Can you work with the drawings I already have?', a: 'Yes. We price and build from your architect’s and engineers’ drawings and coordinate any changes back through them.' },
     ],
     related: ['commercial-build-outs', 'commercial-restrooms', 'fire-protection-signage-coordination', 'plumbing', 'hvac'],
+    standalone: { mode: 'yes', text: 'Yes. A restaurant build-out or commercial kitchen is commonly a substantial project on its own, planned around your lease and opening date.' },
+    startWith: [
+      'Lease and landlord work letter for the space',
+      'Floor plan or existing drawings of the space',
+      'Menu concept and food service equipment list',
+      'Existing hood, grease trap and utility information, if known',
+      'Target opening date',
+      'Any architectural or kitchen design drawings already prepared',
+    ],
   },
 
   'commercial-restrooms': {
@@ -160,6 +169,15 @@ export default {
       { q: 'Which partition material is most durable?', a: 'Solid plastic and phenolic partitions resist moisture and scratching well and suit high-use areas. Steel partitions cost less but can show wear sooner in damp conditions.' },
     ],
     related: ['accessibility-improvements', 'plumbing', 'tile', 'commercial-build-outs', 'restaurants-commercial-kitchens'],
+    standalone: { mode: 'either', text: 'Either. Renovating restrooms in an occupied building can be a standalone project, and restrooms are also part of most build-outs and new buildings.' },
+    startWith: [
+      'Floor plans or existing drawings of the restrooms',
+      'Photos of the existing restrooms and fixtures',
+      'The number of restrooms and fixtures involved',
+      'Accessibility concerns or prior inspection notes, if any',
+      'Operating hours and how the building must stay usable during the work',
+      'Landlord or property manager requirements, if any',
+    ],
   },
 
   'ceilings-partitions': {
@@ -240,6 +258,14 @@ export default {
       { q: 'Can you replace ceiling tile without closing the business?', a: 'Often yes, by working in sections or after hours. Older ceilings may need testing for hazardous materials before work begins.' },
     ],
     related: ['commercial-build-outs', 'framing', 'insulation-drywall', 'commercial-av', 'fire-protection-signage-coordination'],
+    standalone: { mode: 'with-project', text: 'Usually as part of a larger project. Ceilings and partitions are normally built within a commercial build-out or renovation we are managing.' },
+    startWith: [
+      'Floor plans or reflected ceiling plans of the space',
+      'The layout of walls, offices or demising walls you need',
+      'Photos of the existing ceilings and space',
+      'Landlord work letter or building standards, if any',
+      'Acoustic or fire-rating requirements you are aware of',
+    ],
   },
 
   'warehouse-improvements': {
@@ -319,6 +345,15 @@ export default {
       { q: 'Will new racking affect the sprinkler system?', a: 'It can. Storage height and commodity type affect fire protection requirements, so a licensed fire protection contractor or engineer should review racking plans before installation.' },
     ],
     related: ['structural-steel', 'polished-concrete-epoxy', 'fire-protection-signage-coordination', 'asphalt-parking-lots', 'commercial-build-outs'],
+    standalone: { mode: 'either', text: 'Either. Adding offices, a mezzanine or loading improvements can be a substantial project on its own, or part of a larger industrial build-out.' },
+    startWith: [
+      'Site plan and floor plan of the building',
+      'Photos of the areas to be improved',
+      'How the space operates – equipment, racking, forklifts and shifts',
+      'Existing building drawings or structural information, if any',
+      'Landlord or property owner requirements, if any',
+      'Any fire marshal or inspection notes on file',
+    ],
   },
 
   'fire-protection-signage-coordination': {
@@ -399,5 +434,13 @@ export default {
       { q: 'Can we open before final fire inspections?', a: 'Generally no. Fire inspections are typically required before a certificate of occupancy or completion is issued. Your local building and fire officials set those requirements.' },
     ],
     related: ['commercial-build-outs', 'restaurants-commercial-kitchens', 'ceilings-partitions', 'cameras-access-control', 'punch-list-closeout'],
+    standalone: { mode: 'with-project', text: 'Usually as part of a larger project. Fire protection and sign permit coordination is normally handled within a commercial build-out or new building we are managing.' },
+    startWith: [
+      'Floor plans of the space or building',
+      'Existing fire sprinkler and fire alarm drawings, if available',
+      'Landlord or building requirements for fire systems and signage',
+      'Sign design or tenant sign criteria, if any',
+      'Any fire marshal or inspection reports on file',
+    ],
   },
 };

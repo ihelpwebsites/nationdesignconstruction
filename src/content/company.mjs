@@ -22,13 +22,21 @@ export const PRINCIPLES = [
   { icon: 'person', title: 'One main point of contact', text: 'One person who knows your project end to end, coordinating every designer, engineer and trade partner involved.' },
 ];
 
+// Who is responsible for what on a Nation project.
+export const RESPONSIBILITIES = [
+  { who: 'Nation Design & Construction', items: ['Defining the scope, inclusions, exclusions and allowances in writing', 'Pricing, and pricing any change before the work proceeds', 'The schedule, sequencing and site logistics', 'Selecting, coordinating and supervising specialist trade partners', 'Quality checks at each phase, inspections and closeout', 'Being your one main point of contact'] },
+  { who: 'Licensed design professionals', items: ['Architectural drawings where a project requires an architect', 'Engineering — structural, civil, MEP and geotechnical — sealed by licensed engineers', 'Surveys by licensed surveyors'] },
+  { who: 'Specialist trade partners', items: ['Hands-on trade work under our supervision', 'Licensed trades (such as electrical, plumbing, mechanical, roofing and pool work) performed and permitted by appropriately licensed contractors'] },
+  { who: 'You', items: ['Decisions and selections by the dates in the schedule', 'Approving the scope, the price and any changes in writing', 'Access to the property and any HOA, condo or landlord approvals that require the owner'] },
+];
+
 export const HOME_FAQS = [
   { q: 'Do you work from plans I already have?', a: 'Yes. If you have architectural drawings, engineering or a site plan, we review them for completeness and buildability, flag anything missing that would affect permitting or price, and build from them. You don’t need to start over with a new designer.' },
   { q: 'Can you handle the design as well?', a: 'Yes. We coordinate design from early layouts and selections through construction documents, working with licensed architects, engineers and designers wherever the project or the building department requires them. Design and construction are planned together, so the budget is considered as the design develops.' },
   { q: 'Who actually performs the work?', a: 'Specialist subcontractors and professional partners — licensed trades, engineers, architects and designers — perform their parts of the work. We plan the project, coordinate and supervise every party, manage the schedule and logistics, check quality, and remain your one main point of contact.' },
   { q: 'How do you price a project?', a: 'From a defined scope. We price the work line by line, show allowances for selections you haven’t made yet, and explain what could change the cost. Some services publish typical pricing guidance; others — engineering, foundation and sinkhole work, or uncertain site conditions — can only be priced after an assessment.' },
   { q: 'Is there a minimum project size?', a: 'It depends on the type of work. We tell you at the start if a project is smaller than we can serve well, rather than after a site visit. Larger complete projects and substantial standalone projects are our focus.' },
-  { q: 'Where do you work?', a: 'We’re starting in Florida. Tell us where your project is in the inquiry form and we’ll confirm whether it falls within the areas we can serve.' },
+  { q: 'Where do you work?', a: 'We’re launching in Florida. Tell us where your project is — in the form or by phone — and we’ll confirm, before any site visit, whether it’s in an area we serve.' },
   { q: 'Do you handle permits?', a: 'We coordinate permitting as part of the project: preparing and assembling the applications with the design professionals involved, responding to plan review comments and scheduling inspections. Permit and government fees are passed through at cost.' },
   { q: 'What happens after I submit the inquiry form?', a: 'We review what you sent — including any plans or photos — and contact you using the details you provided to discuss next steps. Sending an inquiry doesn’t commit you to anything.' },
 ];

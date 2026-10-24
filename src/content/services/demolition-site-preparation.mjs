@@ -73,6 +73,15 @@ export default {
       { q: 'Does my older home need asbestos testing?', a: 'For older buildings, testing suspect materials such as some flooring, ceiling textures and drywall compounds before demolition is a sensible precaution and may be required. If anything tests positive, a licensed abatement contractor handles removal.' },
     ],
     related: ['hauling-debris-removal', 'structural-modifications', 'whole-home-renovations', 'kitchen-renovation', 'commercial-build-outs'],
+    standalone: { mode: 'with-project', text: 'Interior demolition is normally part of a renovation we are managing, so removal is planned around what will be built next. Appropriately licensed partners carry out the work.' },
+    startWith: [
+      'Drawings or a description of what stays and what is removed',
+      'Photos of the rooms involved',
+      'The building’s age, and any asbestos or lead survey',
+      'Known plumbing, electrical or gas lines in the affected walls',
+      'HOA or condo rules on working hours, debris and elevators',
+      'Access details for removing debris from the building',
+    ],
   },
 
   'structure-demolition': {
@@ -151,6 +160,15 @@ export default {
       { q: 'What happens to the concrete?', a: 'Where local facilities accept it, concrete is separated and taken for recycling rather than to a landfill. Metal and other recyclable materials are separated where practical.' },
     ],
     related: ['clearing-excavation-grading', 'hauling-debris-removal', 'survey-coordination', 'custom-homes', 'site-development'],
+    standalone: { mode: 'either', text: 'Demolition of a structure can be arranged on its own to clear a property, or as the first stage of a new build we manage. An appropriately licensed demolition contractor performs the work.' },
+    startWith: [
+      'A survey showing the structures to be removed',
+      'Photos of the structure and surrounding site',
+      'An asbestos survey, if one has been done',
+      'The status of utility service to the structure',
+      'What you plan to build afterward',
+      'Notes on neighboring buildings, trees and access for equipment',
+    ],
   },
 
   'clearing-excavation-grading': {
@@ -229,6 +247,15 @@ export default {
       { q: 'What is compaction testing?', a: 'A testing laboratory measures the density of fill as it is placed to confirm it meets the engineer’s specification. The results are documented for inspections and support the foundation design.' },
     ],
     related: ['site-plans-civil-engineering', 'geotechnical-soil-testing', 'structure-demolition', 'concrete-foundations', 'site-development'],
+    standalone: { mode: 'either', text: 'Clearing and grading can be arranged on its own for a substantial lot or development, or as part of a new build we manage. The service is aimed at site-scale work rather than small yard projects.' },
+    startWith: [
+      'A boundary and topographic survey',
+      'The site plan or grading and drainage plan, if prepared',
+      'A geotechnical report, if one has been done',
+      'A tree survey or any tree-protection requirements',
+      'Photos of the site, including vegetation and low areas',
+      'Access points for equipment and trucks',
+    ],
   },
 
   'hauling-debris-removal': {
@@ -301,5 +328,14 @@ export default {
       { q: 'Do you recycle construction debris?', a: 'Where local facilities accept separated materials and volumes make it practical, concrete, metal and clean wood are separated for recycling. Availability varies by location.' },
     ],
     related: ['interior-demolition', 'structure-demolition', 'construction-cleaning', 'storm-damage-reconstruction'],
+    standalone: { mode: 'either', text: 'Hauling can be arranged on its own for a property cleanout or post-storm cleanup, or included in a project we manage. We focus on property-scale cleanouts rather than single-item pickups.' },
+    startWith: [
+      'Photos of the materials to be removed',
+      'The rooms or areas involved and a rough sense of volume',
+      'Types of material, including any paint, chemicals or other items needing special disposal',
+      'Access for trucks and possible container placement',
+      'HOA or condo rules on containers and working hours',
+      'Any date by which the property must be cleared',
+    ],
   },
 };

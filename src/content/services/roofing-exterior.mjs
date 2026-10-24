@@ -80,6 +80,15 @@ export default {
       { q: 'Can I switch from shingle to tile?', a: 'Often, but tile is much heavier. A structural review may be needed to confirm the framing can carry the added weight before the change is made.' },
     ],
     related: ['gutters-soffit-fascia', 'storm-damage-reconstruction', 'water-intrusion-repair', 'framing', 'whole-home-renovations'],
+    standalone: { mode: 'yes', text: 'Roof replacement is commonly a standalone project, and roofing can also be part of a larger renovation or new build we manage. We focus on replacements and substantial roofing work rather than small repairs, performed by licensed roofing contractor partners.' },
+    startWith: [
+      'Photos of the roof, and of any interior stains or leaks',
+      'The roof’s approximate age and current material',
+      'Any prior roof inspection or wind mitigation report',
+      'HOA rules on roofing material and color',
+      'The roofing material you are considering',
+      'Insurance documentation, if the work follows storm damage',
+    ],
   },
 
   'waterproofing': {
@@ -157,6 +166,15 @@ export default {
       { q: 'How often should sealants be replaced?', a: 'Sealants degrade with sun and movement. Inspect them regularly and replace them when they crack, harden or pull away. The right interval depends on the product and exposure.' },
     ],
     related: ['water-intrusion-repair', 'concrete-restoration', 'stucco-siding', 'tile', 'impact-windows-doors'],
+    standalone: { mode: 'either', text: 'Waterproofing can be arranged on its own for a substantial area such as a balcony, deck or below-grade wall, or as part of a larger project we manage. We focus on complete areas rather than spot patching.' },
+    startWith: [
+      'Photos of the area and any staining or damage',
+      'Which surfaces are involved and their approximate size',
+      'Any leak investigation or inspection reports',
+      'Existing drawings or details, if available',
+      'The age and type of any existing coating or membrane',
+      'Condo association requirements, if applicable',
+    ],
   },
 
   'stucco-siding': {
@@ -229,6 +247,14 @@ export default {
       { q: 'Is fiber-cement siding suitable for Florida?', a: 'It is widely used. It resists rot, termites and fire, and can be installed to meet wind requirements when fastened to the manufacturer’s specification.' },
     ],
     related: ['exterior-painting', 'masonry-block', 'waterproofing', 'water-intrusion-repair', 'home-additions'],
+    standalone: { mode: 'either', text: 'Stucco and siding can be arranged on their own for a full elevation or whole-house project, or as part of a larger renovation we manage. We focus on substantial areas rather than small patches.' },
+    startWith: [
+      'Photos of every elevation of the building',
+      'Approximate wall areas or building dimensions',
+      'Any inspection report noting cracks or moisture',
+      'HOA rules on exterior finish and color',
+      'Existing drawings, if available',
+    ],
   },
 
   'exterior-painting': {
@@ -302,6 +328,15 @@ export default {
       { q: 'Do I need HOA approval to repaint?', a: 'Many associations require approval of colors before exterior painting. We help prepare samples and submissions.' },
     ],
     related: ['stucco-siding', 'gutters-soffit-fascia', 'interior-painting', 'waterproofing', 'whole-home-renovations'],
+    standalone: { mode: 'yes', text: 'Exterior painting is commonly hired on its own for a whole house or building, and it is also part of renovations we manage. We focus on complete exteriors rather than touch-ups.' },
+    startWith: [
+      'Photos of all sides of the building',
+      'The building’s size and number of stories',
+      'HOA-approved color schemes, if applicable',
+      'Known stucco cracks, wood damage or peeling areas',
+      'Your preferred colors and sheens',
+      'Access constraints such as landscaping, pools or tight side yards',
+    ],
   },
 
   'impact-windows-doors': {
@@ -379,6 +414,15 @@ export default {
       { q: 'Why do I need design pressures?', a: 'Each opening must withstand the wind pressure expected at its position on the building. Corners and upper floors often see higher pressures, so not every window has the same rating.' },
     ],
     related: ['storefront-glazing', 'stucco-siding', 'waterproofing', 'structural-modifications', 'custom-homes'],
+    standalone: { mode: 'yes', text: 'Replacing windows and doors with impact-rated units is commonly a standalone project, and it can also be part of a larger renovation or new build. We focus on whole-house or multi-opening replacements rather than single-unit repairs.' },
+    startWith: [
+      'A count of the openings, with rough sizes',
+      'Photos of each opening, inside and outside',
+      'Existing drawings, if available',
+      'HOA or condo requirements for windows and doors',
+      'Preferred styles, frame colors and glass options',
+      'Any quotes or product approvals you have already received',
+    ],
   },
 
   'storefront-glazing': {
@@ -458,6 +502,15 @@ export default {
       { q: 'Can I keep my existing storefront in a new lease space?', a: 'Sometimes. An older non-impact system may need protection or replacement depending on the scope of work and local rules, so it should be reviewed early with the design team.' },
     ],
     related: ['commercial-build-outs', 'impact-windows-doors', 'fire-protection-signage-coordination', 'commercial-new-construction', 'cameras-access-control'],
+    standalone: { mode: 'either', text: 'Storefront and glazing work can be arranged on its own for a substantial facade replacement, or as part of a build-out or new building we manage.' },
+    startWith: [
+      'Architectural drawings or elevations of the storefront',
+      'Photos of the existing storefront, inside and outside',
+      'Approximate dimensions of the openings',
+      'Landlord or property manager requirements',
+      'Door hardware and access control needs',
+      'Product approvals, if a system has already been chosen',
+    ],
   },
 
   'gutters-soffit-fascia': {
@@ -531,5 +584,13 @@ export default {
       { q: 'How do soffits affect the attic?', a: 'Vented soffits supply intake air that, together with ridge or roof vents, helps move heat and moisture out of the attic. Covering vents with paint or insulation reduces that airflow.' },
     ],
     related: ['roofing', 'exterior-painting', 'retaining-walls-drainage', 'stucco-siding'],
+    standalone: { mode: 'either', text: 'Gutters, soffit and fascia are usually done alongside a roof replacement, exterior renovation or new build we manage. They can be arranged on their own when the work covers the whole house rather than a short section.' },
+    startWith: [
+      'Photos of the rooflines and any damaged areas',
+      'A roof plan or rough lengths of the eaves',
+      'Known drainage problems around the house',
+      'HOA rules on colors and materials',
+      'Whether roof or exterior work is also planned',
+    ],
   },
 };

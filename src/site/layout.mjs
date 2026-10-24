@@ -14,18 +14,43 @@ export const NAV = [
   { href: '/about/', label: 'About' },
 ];
 
-/** Responsive <img> for a licensed photo key. Hero images load eagerly with high priority; others lazy-load. */
+/** srcset for a photo key in one format (avif | webp). */
+export function srcsetFor(key, fmt) {
+  const img = IMAGES[key];
+  const base = img.file || key;
+  return (img.widths || WIDTHS).map((w) => `/img/${base}-${w}.${fmt} ${w}w`).join(', ');
+}
+/** Responsive <picture> (AVIF with WebP fallback) for a photo key. Hero images load eagerly; others lazy-load. */
 export function pic(key, { sizes = '(min-width: 1000px) 50vw, 100vw', eager = false, cls = '', alt } = {}) {
   const img = IMAGES[key];
   if (!img) return '';
-  const srcset = WIDTHS.map((w) => `/img/${key}-${w}.webp ${w}w`).join(', ');
+  const base = img.file || key;
   const load = eager ? 'fetchpriority="high" loading="eager"' : 'loading="lazy"';
-  return `<img src="/img/${key}-1200.webp" srcset="${srcset}" sizes="${attr(sizes)}" width="1200" height="800" alt="${attr(alt ?? img.alt)}" decoding="async" ${load}${cls ? ` class="${cls}"` : ''}>`;
+  const pos = img.position ? ` style="object-position:${attr(img.position)}"` : '';
+  return `<picture><source type="image/avif" srcset="${srcsetFor(key, 'avif')}" sizes="${attr(sizes)}">` +
+    `<img src="/img/${base}-1200.webp" srcset="${srcsetFor(key, 'webp')}" sizes="${attr(sizes)}" width="1200" height="800" alt="${attr(alt ?? img.alt)}" decoding="async" ${load}${cls ? ` class="${cls}"` : ''}${pos}></picture>`;
 }
 export function credit(key) {
   const img = IMAGES[key];
   if (!img) return '';
-  return `Representative photo, not our project · <a href="${attr(img.page)}" rel="nofollow noopener" target="_blank">${esc(img.credit)} / Unsplash</a>`;
+  return `Representative photo, not our project · <a href="${attr(img.page)}" rel="nofollow noopener" target="_blank">${esc(img.credit)} / Unsplash</a>${img.edited ? ' (edited)' : ''}`;
+}
+
+/** Click-to-call link for the confirmed number. */
+export function phoneLink(cls = '', label) {
+  const f = facts();
+  return `<a${cls ? ` class="${cls}"` : ''} href="tel:${attr(f.phoneE164)}" data-track="phone">${label ? esc(label) : esc(f.phone)}</a>`;
+}
+/** Email link — only once the mailbox is verified in admin; otherwise empty. */
+export function emailLink(cls = '') {
+  const f = facts();
+  return f.email ? `<a${cls ? ` class="${cls}"` : ''} href="mailto:${attr(f.email)}" data-track="email">${esc(f.email)}</a>` : '';
+}
+
+/** "Prefer to talk?" panel — phone first; email only when verified. The form stays the primary action. */
+export function contactPanel({ heading = 'Prefer to talk?', note = 'Or use the project form — it lets you attach plans and photos.' } = {}) {
+  const f = facts();
+  return `<div class="panel contact-panel"><h2>${esc(heading)}</h2>${phoneLink('tel')}${f.email ? `<p class="small">${emailLink()}</p>` : ''}<p class="small muted">${esc(note)}</p></div>`;
 }
 
 function megaMenu(cats) {
@@ -84,7 +109,8 @@ function drawer(cats, current) {
         <li><a class="top" href="/pricing/">Pricing Guide</a></li>
       </ul>
     </nav>
-    <div class="cta"><a class="btn" href="/start/">Discuss Your Project ${icon('arrow')}</a></div>
+    <div class="cta"><a class="btn" href="/start/">Discuss Your Project ${icon('arrow')}</a>
+      <p class="drawer-contact">${phoneLink('btn ghost', 'Call ' + facts().phone)}${emailLink('textlink')}</p></div>
   </div>
 </div>`;
 }
@@ -100,6 +126,7 @@ function header(current) {
         ${list(NAV, (n) => n.mega
           ? `<li><button class="navlink" type="button" aria-expanded="false" aria-controls="mega-services"${isCurrent(n.href) ? ' data-current' : ''}>${n.label} ${icon('chevron')}</button></li>`
           : `<li><a href="${n.href}"${isCurrent(n.href) ? ' aria-current="page"' : ''}>${n.label}</a></li>`)}
+        <li class="nav-phone">${phoneLink()}</li>
         <li><a class="btn" href="/start/">Discuss Your Project</a></li>
       </ul>
     </nav>
@@ -118,9 +145,8 @@ function footer() {
     <div class="foot-top">
       <div class="foot-brand">
         <img src="${brand('nation-logo-ivory-tight.svg')}" alt="Nation Design &amp; Construction" width="300" height="68" loading="lazy">
-        <p class="max-40">Design-focused residential and commercial construction, starting in Florida. One point of contact from first conversation to final cleanup.</p>
-        ${f.phone ? `<p><a href="tel:${attr(f.phone.replace(/[^\d+]/g, ''))}">${esc(f.phone)}</a></p>` : ''}
-        ${f.email ? `<p><a href="mailto:${attr(f.email)}">${esc(f.email)}</a></p>` : ''}
+        <p class="max-40">Design-focused residential and commercial construction, launching in Florida. One accountable point of contact from first conversation to final cleanup.</p>
+        <p class="foot-contact">${phoneLink('foot-phone')}${f.email ? `<br>${emailLink()}` : ''}</p>
         ${f.address ? `<p>${esc(f.address)}</p>` : ''}
       </div>
       <div><h2>Build with us</h2><ul>
@@ -148,10 +174,11 @@ export function organizationLd() {
     name: BUSINESS.name, url: `${SITE_URL}/`, logo: `${SITE_URL}${brand('nation-logo.png')}`, image: `${SITE_URL}${brand('nation-icon-512.png')}`,
     description: 'Design-focused residential and commercial construction company managing complete projects from concept and planning through construction and final cleanup.',
   };
+  org.telephone = f.phoneE164;
   if (f.email) org.email = f.email;
-  if (f.phone) org.telephone = f.phone;
+  // Coverage is stated only once the owner verifies it — never implied statewide.
   if (f.serviceArea) org.areaServed = f.serviceArea;
-  else org.areaServed = { '@type': 'State', name: 'Florida' };
+  org.contactPoint = [{ '@type': 'ContactPoint', telephone: f.phoneE164, contactType: 'customer service', availableLanguage: 'English', ...(f.email ? { email: f.email } : {}) }];
   return org;
 }
 
@@ -162,9 +189,10 @@ export function layout(page) {
   const canonical = `${SITE_URL}${page.path}`;
   const robots = !INDEXING || page.noindex ? 'noindex, follow' : 'index, follow, max-image-preview:large';
   const title = page.title === BUSINESS.name ? page.title : `${page.title} | ${BUSINESS.name}`;
-  const og = page.ogImage ? `${SITE_URL}/img/${page.ogImage}-1200.webp` : `${SITE_URL}${brand('nation-og-image.png')}`;
+  const og = page.ogImage ? `${SITE_URL}/img/${IMAGES[page.ogImage]?.file || page.ogImage}-1200.webp` : `${SITE_URL}${brand('nation-og-image.png')}`;
   const ld = [organizationLd(), ...(page.jsonld || [])];
-  const preload = page.preloadImage ? `<link rel="preload" as="image" href="/img/${page.preloadImage}-1200.webp" imagesrcset="${WIDTHS.map((w) => `/img/${page.preloadImage}-${w}.webp ${w}w`).join(', ')}" imagesizes="100vw" fetchpriority="high">` : '';
+  // Preload the hero in AVIF (what the <picture> selects in all current browsers) with the same sizes as the image.
+  const preload = page.preloadImage ? `<link rel="preload" as="image" type="image/avif" imagesrcset="${srcsetFor(page.preloadImage, 'avif')}" imagesizes="100vw" fetchpriority="high">` : '';
   return `<!doctype html>
 <html lang="en-US">
 <head>
@@ -214,7 +242,7 @@ export function crumbs(items) {
 export function ctaBand({ title = 'Tell us about your project.', text = 'A short form — three steps, a few minutes. Share plans or photos if you have them. We’ll review it and follow up using the contact details you provide.', href = '/start/', label = 'Discuss Your Project' } = {}) {
   return `<section class="cta-band on-dark" aria-labelledby="cta-h"><div class="wrap">
   <div><p class="eyebrow">Start here</p><h2 id="cta-h">${esc(title)}</h2></div>
-  <div class="stack"><p>${esc(text)}</p><div class="actions"><a class="btn light" href="${attr(href)}">${esc(label)} ${icon('arrow')}</a></div></div>
+  <div class="stack"><p>${esc(text)}</p><div class="actions"><a class="btn light" href="${attr(href)}">${esc(label)} ${icon('arrow')}</a>${phoneLink('cta-phone', 'Or call ' + facts().phone)}</div></div>
 </div></section>`;
 }
 

@@ -72,6 +72,14 @@ export default {
       { q: 'Can trees be planted near the house or pool?', a: 'Yes, with care. Mature canopy and root spread, leaf drop into the pool and distance from foundations and utilities all guide placement.' },
     ],
     related: ['irrigation', 'landscape-lighting', 'retaining-walls-drainage', 'pavers-driveways-walkways', 'custom-homes'],
+    standalone: { mode: 'either', text: 'Either. A full landscape design and installation can be a project on its own, and it is often part of a new home, pool or renovation; our focus is whole-property or substantial planting work rather than small seasonal jobs.' },
+    startWith: [
+      'Survey or plot plan of the property',
+      'Photos of the existing yard, trees and planting beds',
+      'How you use the yard and how much maintenance you are prepared for',
+      'Any drainage or irrigation problems you have noticed',
+      'HOA landscape guidelines, if any',
+    ],
   },
 
   'irrigation': {
@@ -145,6 +153,14 @@ export default {
       { q: 'Why is drip better for shrub beds?', a: 'Drip places water at the roots, reduces evaporation and overspray onto walls and walks, and keeps foliage drier, which can reduce disease.' },
     ],
     related: ['landscape-design-planting', 'plumbing', 'retaining-walls-drainage', 'landscape-lighting'],
+    standalone: { mode: 'with-project', text: 'Usually as part of a larger project. Irrigation is normally designed and installed with new landscaping, a new home or a property renovation that we are managing.' },
+    startWith: [
+      'Survey or plot plan with planting areas marked',
+      'Landscape plan, if one exists',
+      'Water source – municipal, reclaimed or well – and meter location',
+      'Photos and layout of any existing irrigation system and controller',
+      'Local watering restrictions or HOA rules you are aware of',
+    ],
   },
 
   'landscape-lighting': {
@@ -215,6 +231,14 @@ export default {
       { q: 'How do I keep lighting from creating glare?', a: 'Shielded fixtures, careful aiming, appropriate brightness and avoiding lights pointed at windows or neighbors all reduce glare.' },
     ],
     related: ['landscape-design-planting', 'electrical', 'smart-home-shades', 'outdoor-kitchens'],
+    standalone: { mode: 'with-project', text: 'Usually as part of a larger project. Landscape lighting is normally planned with new landscaping, hardscape, a pool or an outdoor living project we are managing.' },
+    startWith: [
+      'Survey or plot plan with planting and hardscape areas',
+      'Photos of the property in daylight and, if possible, after dark',
+      'The features, paths and areas you want lit',
+      'Location of exterior outlets and the electrical panel',
+      'HOA rules on exterior lighting, if any',
+    ],
   },
 
   'pavers-driveways-walkways': {
@@ -289,6 +313,14 @@ export default {
       { q: 'Does a new driveway need a permit?', a: 'Often, especially where the driveway connects to a public road or crosses a right-of-way. Requirements vary by jurisdiction and HOA.' },
     ],
     related: ['pool-renovation', 'retaining-walls-drainage', 'landscape-design-planting', 'concrete-foundations', 'site-development'],
+    standalone: { mode: 'either', text: 'Either. A new driveway or pool deck is often a substantial project on its own, and walkways and patios are commonly built as part of a larger project.' },
+    startWith: [
+      'Survey or plot plan showing the areas to be paved',
+      'Photos of the existing surfaces and any settling, cracking or standing water',
+      'The material and pattern you prefer',
+      'Any drainage problems you have noticed',
+      'HOA guidelines for driveways and hardscape, if any',
+    ],
   },
 
   'asphalt-parking-lots': {
@@ -362,6 +394,15 @@ export default {
       { q: 'Can my business stay open?', a: 'Usually. We phase the work, maintain access routes and schedule disruptive operations around your hours where possible.' },
     ],
     related: ['site-development', 'retaining-walls-drainage', 'site-plans-civil-engineering', 'commercial-new-construction'],
+    standalone: { mode: 'yes', text: 'Yes. Paving, resurfacing or restriping a commercial parking lot is commonly a standalone project, and it can also be part of a site development or new building.' },
+    startWith: [
+      'Site plan or survey of the paved areas',
+      'Photos of the existing pavement, cracking, potholes and drainage',
+      'Existing striping layout and parking count requirements, if known',
+      'Any accessibility concerns or prior inspection notes',
+      'Operating hours and limits on closing parts of the lot',
+      'Property owner or association requirements, if any',
+    ],
   },
 
   'fences-gates': {
@@ -435,6 +476,14 @@ export default {
       { q: 'What fence materials last near the coast?', a: 'Powder-coated aluminum with a coastal-grade finish, vinyl and composite resist salt air well. Hardware and fasteners should also be corrosion-resistant.' },
     ],
     related: ['pools-spas', 'survey-coordination', 'cameras-access-control', 'landscape-design-planting'],
+    standalone: { mode: 'either', text: 'Either. A full perimeter fence or an automatic gate can be hired on its own, and fencing is often part of a pool, new home or property project; our focus is complete fence and gate projects rather than small repairs.' },
+    startWith: [
+      'Survey showing property lines and easements',
+      'Photos of the fence line and any existing fence',
+      'Approximate length, height and the material you prefer',
+      'Pool barrier requirements, if the fence encloses a pool',
+      'HOA fence guidelines, if any',
+    ],
   },
 
   'retaining-walls-drainage': {
@@ -508,5 +557,14 @@ export default {
       { q: 'Can I direct water to the street or neighbor’s yard?', a: 'Discharge must follow local rules and cannot create a problem for neighbors. The engineer designs approved discharge points as part of the plan.' },
     ],
     related: ['site-plans-civil-engineering', 'survey-coordination', 'clearing-excavation-grading', 'landscape-design-planting', 'foundation-repair'],
+    standalone: { mode: 'either', text: 'Either. A drainage problem or a grade change can be a substantial project on its own, and drainage work is also part of many site and outdoor projects.' },
+    startWith: [
+      'Survey or topographic survey of the property',
+      'Photos of where water collects, flows or causes damage, ideally during or after rain',
+      'Any existing drainage plans or engineering',
+      'Location of downspouts and any existing drains',
+      'Notes on neighboring properties or easements that affect drainage',
+      'HOA guidelines, if any',
+    ],
   },
 };

@@ -237,7 +237,7 @@ export const OVERVIEWS = [
 // Availability: 'published' = listed + indexable; 'preview' = listed and reachable, noindex, shows an
 // availability note; 'hidden' = not listed, 404. Nothing has been confirmed by the owner yet, so every service
 // starts in 'preview'. Owner changes this per service in admin → Services.
-export const DEFAULT_AVAILABILITY = 'preview';
+export const DEFAULT_AVAILABILITY = 'published';
 
 export const categoryBySlug = Object.fromEntries(CATEGORIES.map((c) => [c.slug, c]));
 export const serviceBySlug = Object.fromEntries(SERVICES.map((s) => [s.slug, s]));

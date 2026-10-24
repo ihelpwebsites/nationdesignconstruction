@@ -1,6 +1,6 @@
 // Services directory, category pages, individual service pages and whole-project overview pages.
 import { esc, attr, icon, list, money, UNIT_LABEL, fmtDate } from '../html.mjs';
-import { layout, crumbs, pic, credit, ctaBand, faqBlock } from '../layout.mjs';
+import { layout, crumbs, pic, credit, ctaBand, faqBlock, contactPanel } from '../layout.mjs';
 import { categories, category, service, overview, services as allServices, listed, indexable } from '../../server/services.mjs';
 import { CATEGORY_IMAGE, OVERVIEW_IMAGE } from '../../data/images.mjs';
 import { OVERVIEWS, serviceBySlug } from '../../data/catalog.mjs';
@@ -41,15 +41,15 @@ export function directory(query = {}) {
     ${list(cats, (cat) => `<button type="button" aria-pressed="false" data-filter="${cat.slug}">${esc(cat.short)}</button>`)}
   </div>
 </div></div>
-<section class="section tight" id="dir-results" aria-live="polite">
+<section class="section tight" id="dir-results">
   <div class="wrap">
-    <p class="small muted" data-dir-count></p>
+    <div class="dir-status"><p class="small muted" role="status" data-dir-count></p><button type="button" class="textlink small" data-dir-reset hidden>Clear search &amp; filters</button></div>
     ${list(cats, (cat) => `<div class="dir-cat" data-cat="${cat.slug}">
       <div class="split"><div><h2><a href="${cat.path}">${esc(cat.name)}</a></h2><p class="muted">${esc(cat.blurb)}</p></div></div>
       <ul class="dir-list">${list(cat.services, (s) => `<li data-search="${attr([s.name, s.summary, ...(s.covers || []), cat.name].join(' ').toLowerCase())}">
         <a href="${s.path}"><strong>${esc(s.name)}</strong><span>${esc(s.summary)}</span>${DELIVERY_TAG[s.delivery] ? `<span class="tag partner">${DELIVERY_TAG[s.delivery]}</span>` : ''}</a></li>`)}</ul>
     </div>`)}
-    <div class="dir-empty" data-dir-empty hidden><h2 class="h3">No services match that search.</h2><p class="muted">Try a broader word, or <a href="/start/">describe your project</a> and we’ll tell you how we’d approach it.</p></div>
+    <div class="dir-empty" data-dir-empty hidden><h2 class="h3">No services match that search.</h2><p class="muted">Try a broader word, <button type="button" class="textlink" data-dir-reset>clear the search and filters</button>, or <a href="/start/">describe your project</a> and we’ll tell you how we’d approach it.</p></div>
     <div class="note mt-5"><strong>Planning a complete project?</strong> See <a href="/residential/custom-homes/">custom homes</a>, <a href="/residential/additions/">additions</a>, <a href="/residential/whole-home-renovations/">whole-home renovations</a>, <a href="/commercial/new-construction/">commercial new construction</a>, <a href="/commercial/build-outs/">build-outs</a> and <a href="/commercial/site-development/">site development</a>. A complete-project budget already includes the individual trades it needs.</div>
   </div>
 </section>
@@ -85,6 +85,9 @@ ${ctaBand()}`;
 }
 
 // ---- Shared long-form sections (service + overview pages) -----------------------------------------------
+const MANAGED_ROLE = 'We are responsible for the scope, schedule, coordination, site supervision and quality checks, and we are your single point of contact. The hands-on work is carried out by specialist trade partners we select and supervise for this kind of work.';
+const STANDALONE_LABEL = { yes: 'Can be hired on its own', either: 'On its own or within a larger project', 'with-project': 'Usually part of a larger project' };
+const UNIT_BASIS = { sqft: 'usually by the square foot', lf: 'usually by the linear foot', project: 'as a fixed project price', assessment: 'after an assessment' };
 function pricingSection(p, s, isOverview) {
   const price = s.price;
   const assessment = s.unit === 'assessment' || s.delivery === 'assessment';
@@ -98,9 +101,9 @@ function pricingSection(p, s, isOverview) {
         ${price.geography ? `<dt>Applies to</dt><dd>${esc(price.geography)}</dd>` : ''}
       </dl>
       <p class="small muted">Guidance only — your price comes from a defined scope after we review your project.</p>
-    </div>` : `<div class="note"><strong>${assessment ? 'Priced after an assessment.' : 'Pricing on request.'}</strong> ${assessment
-      ? 'The scope of this work can’t be known until testing, inspection or engineering is complete, so we price the assessment first and the work once the findings and repair design are in hand.'
-      : 'We haven’t published typical figures for this service yet. We price it from a defined scope — tell us about the project and we’ll explain how we’d price it.'}</div>`;
+    </div>` : `<div class="note"><strong>${assessment ? 'Priced in two steps: assessment, then repair.' : `Priced from a defined scope, ${UNIT_BASIS[s.unit] || 'per project'}.`}</strong> ${assessment
+      ? 'The scope of this work can’t be known until testing, inspection or engineering is complete, so the assessment is priced first and the work is priced once the findings and repair design are in hand.'
+      : 'We don’t publish a planning range for this service yet, because a figure that ignores your site, selections and access would mislead more than help. With the information listed under “What we need to price it”, we can give you a written scope and price.'}</div>`;
   return `<section id="pricing" aria-labelledby="pricing-h"><h2 id="pricing-h">How pricing works</h2>
     <div class="stack">${list(p.how, (x) => `<p>${esc(x)}</p>`)}</div>
     <div class="mt-4">${figure}</div>
@@ -121,8 +124,14 @@ function longForm(s, { isOverview = false } = {}) {
 <div class="svc-main">
   <section id="overview" aria-labelledby="ov-h"><h2 id="ov-h" class="sr-only">Overview</h2>
     <div class="prose stack">${list(s.intro, (p) => `<p>${esc(p)}</p>`)}</div>
-    ${s.partnerRole ? `<div class="note mt-4"><strong>Who does what.</strong> ${esc(s.partnerRole)}</div>` : ''}
+    <div class="note mt-4"><strong>Who does what.</strong> ${esc(s.partnerRole || MANAGED_ROLE)}</div>
   </section>
+  ${s.standalone || s.startWith ? `<section id="start" aria-labelledby="start-h"><h2 id="start-h">Getting started</h2>
+    <div class="two-col">
+      ${s.standalone ? `<div><h3>${STANDALONE_LABEL[s.standalone.mode] || 'Hiring this service'}</h3><p class="mt-1">${esc(s.standalone.text)}</p></div>` : ''}
+      ${s.startWith ? `<div><h3>What we need to price it</h3><ul class="ticks mt-2">${list(s.startWith, (x) => `<li>${esc(x)}</li>`)}</ul>
+        <p class="small muted mt-2">Don’t have all of it? Send what you have — we’ll tell you what’s missing.</p></div>` : ''}
+    </div></section>` : ''}
   <section id="who" aria-labelledby="who-h"><h2 id="who-h">Who it’s for</h2><ul class="ticks">${list(s.whoFor, (x) => `<li>${esc(x)}</li>`)}</ul></section>
   <section id="scope" aria-labelledby="scope-h"><h2 id="scope-h">What’s included</h2>
     <div class="two-col">
@@ -150,9 +159,10 @@ function aside(s, { href, label, statusNote }) {
     <div class="panel dark on-dark"><h2>Talk to us about ${esc(s.name.toLowerCase())}</h2>
       <p class="small">Tell us about the project — with plans or photos if you have them.</p>
       <a class="btn light" href="${attr(href)}">${esc(label)} ${icon('arrow')}</a></div>
+    ${contactPanel({ heading: 'Prefer to talk it through?', note: 'Call, or send the project form with plans and photos.' })}
     ${statusNote || ''}
     <nav class="panel" aria-label="On this page"><h2>On this page</h2><ul class="toc">
-      <li><a href="#overview">Overview</a></li><li><a href="#who">Who it’s for</a></li><li><a href="#scope">What’s included</a></li>
+      <li><a href="#overview">Overview</a></li>${s.startWith ? '<li><a href="#start">Getting started</a></li>' : ''}<li><a href="#who">Who it’s for</a></li><li><a href="#scope">What’s included</a></li>
       <li><a href="#options">Options &amp; upgrades</a></li><li><a href="#pricing">Pricing</a></li><li><a href="#stages">Stages &amp; scheduling</a></li>
       <li><a href="#faq">Questions</a></li></ul></nav>
   </div></aside>`;
@@ -171,7 +181,8 @@ export function servicePage(slug) {
   const f = facts();
   const svcLd = {
     '@context': 'https://schema.org', '@type': 'Service', name: s.name, description: s.summary, url: `${SITE_URL}${s.path}`,
-    serviceType: s.name, provider: { '@id': `${SITE_URL}/#org` }, areaServed: f.serviceArea || { '@type': 'State', name: 'Florida' },
+    serviceType: s.name, provider: { '@id': `${SITE_URL}/#org` }, ...(f.serviceArea ? { areaServed: f.serviceArea } : {}),
+    category: cat.name, ...(s.price ? { offers: { '@type': 'Offer', priceSpecification: { '@type': 'PriceSpecification', priceCurrency: 'USD', minPrice: s.price.low, ...(s.price.basis === 'range' ? { maxPrice: s.price.high } : {}) } } } : {}),
   };
   const body = `
 <section class="page-hero"><div class="wrap">

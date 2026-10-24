@@ -8,6 +8,7 @@ import { HttpError, readForm, rateLimit, clientIp, sniff, checkOrigin, EXT } fro
 import { run, get, now, newId, makeRef, sha256, tx, audit, PRIVATE_DIR } from './db.mjs';
 import { service } from './services.mjs';
 import { notify } from './email.mjs';
+import { track } from './events.mjs';
 import { FORM_SECRET, TURNSTILE, UPLOAD, BUDGETS, TIMINGS, PLAN_ITEMS, BUDGET_CEIL, SITE_URL } from '../config.mjs';
 import { PROJECT_TYPES } from '../site/pages/start.mjs';
 import { TRADES, PROJECT_SIZES, INSURANCE_STATUS } from '../data/trades.mjs';
@@ -77,6 +78,12 @@ export function storeFiles(ownerKind, ownerId, files) {
   return ids;
 }
 
+/** Per-page-load submission key (hidden field). A retried submission with the same key returns the original record. */
+export const newSubmissionKey = () => crypto.randomBytes(18).toString('base64url');
+const idemOf = (fields) => { const k = String(one(fields._idem) || ''); return /^[\w-]{16,64}$/.test(k) ? sha256('idem:' + k) : null; };
+// Controlled tests are marked so they never mix with genuine leads.
+const isTestSubmission = (name, email) => /^website test\b/i.test(name) || /@example\.(com|test|org)$/i.test(email);
+
 async function common(req, bucket, max) {
   checkOrigin(req);
   const ip = clientIp(req);
@@ -91,6 +98,8 @@ async function common(req, bucket, max) {
 // ---------------------------------------------------------------------------------------------------------
 export async function handleInquiry(req) {
   const { fields, files, ipHash } = await common(req, 'inq', RATE);
+  const idem = idemOf(fields);
+  if (idem) { const prev = get('SELECT ref FROM inquiries WHERE idem_key = ?', idem); if (prev) return { ok: true, ref: prev.ref, duplicate: true }; }
   const e = {};
   const market = one(fields.market);
   if (!['residential', 'commercial'].includes(market)) e.market = 'Choose residential or commercial.';
@@ -124,26 +133,37 @@ export async function handleInquiry(req) {
   const minProject = svc?.minProject || null;
   const below = minProject && BUDGET_CEIL[budget] != null && BUDGET_CEIL[budget] < minProject ? 1 : 0;
 
-  const id = newId('inq'), ref = makeRef('NDC'), t = now();
-  tx(() => {
-    run(`INSERT INTO inquiries (id, ref, status, market, project_type, service, location, readiness, plans, budget, timing, name, email, phone,
-      description, extra, consent_contact, consent_marketing, below_minimum, source_page, ip_hash, created_at, updated_at)
-      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
-      id, ref, 'new', market, projectType, svc?.slug || null, location, readiness, JSON.stringify(plans), budget, timing, name, email, phone,
-      description, JSON.stringify(extra), 1, one(fields.consent_marketing) === '1' ? 1 : 0, below, clean(fields.source, 200), ipHash, t, t);
-    storeFiles('inquiry', id, valid);
-    audit('public', 'inquiry.create', 'inquiry', id);
-  });
+  const id = newId('inq'), ref = makeRef('NDC'), t = now(), test = isTestSubmission(name, email) ? 1 : 0;
+  try {
+    tx(() => {
+      run(`INSERT INTO inquiries (id, ref, status, market, project_type, service, location, readiness, plans, budget, timing, name, email, phone,
+        description, extra, consent_contact, consent_marketing, below_minimum, source_page, ip_hash, created_at, updated_at, idem_key, is_test)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+        id, ref, 'new', market, projectType, svc?.slug || null, location, readiness, JSON.stringify(plans), budget, timing, name, email, phone,
+        description, JSON.stringify(extra), 1, one(fields.consent_marketing) === '1' ? 1 : 0, below, clean(fields.source, 200), ipHash, t, t, idem, test);
+      storeFiles('inquiry', id, valid);
+      audit('public', 'inquiry.create', 'inquiry', id);
+    });
+  } catch (err) {
+    // A concurrent retry with the same key won the race: return the stored record instead of failing.
+    const prev = idem && get('SELECT ref FROM inquiries WHERE idem_key = ?', idem);
+    if (prev) return { ok: true, ref: prev.ref, duplicate: true };
+    throw err;
+  }
+  track('inquiry_submitted', svc?.slug || market);
   const text = [`New project inquiry ${ref}`, '', `${name} · ${email} · ${phone}`, `${market} — ${projectType}${svc ? ` — ${svc.name}` : ''}`, `Location: ${location}`,
     `Readiness: ${readiness}${plans.length ? ` (${plans.join(', ')})` : ''}`, `Budget: ${budget} · Timing: ${timing}${below ? ' · BELOW configured minimum' : ''}`, '', description, '',
     `${valid.length} attachment(s). Open in admin: ${SITE_URL}/admin/inquiries/${id}`].join('\n');
-  const n = await notify('inquiry', `New inquiry ${ref}: ${projectType}`, text);
-  return { ok: true, ref, notified: n.sent };
+  // Stored durably above; the notification is queued and retried independently and can never undo the lead.
+  notify('inquiry', `${test ? '[TEST] ' : ''}New inquiry ${ref}: ${projectType}`, text, { replyTo: email }).catch(() => {});
+  return { ok: true, ref };
 }
 
 // ---------------------------------------------------------------------------------------------------------
 export async function handleTradeApplication(req) {
   const { fields, ipHash } = await common(req, 'trade', Math.max(4, RATE - 2));
+  const idem = idemOf(fields);
+  if (idem) { const prev = get('SELECT ref FROM trade_applications WHERE idem_key = ?', idem); if (prev) return { ok: true, ref: prev.ref, duplicate: true }; }
   const e = {};
   const company = clean(fields.company, 120); if (company.length < 2) e.company = 'Enter your company name.';
   const contact = clean(fields.contact_name, 100); if (contact.length < 2) e.contact_name = 'Enter a contact name.';
@@ -164,12 +184,20 @@ export async function handleTradeApplication(req) {
   if (one(fields.consent_contact) !== '1') e.consent_contact = 'We need your permission to contact you about prequalification.';
   if (Object.keys(e).length) throw new FieldErrors(e);
   const id = newId('trd'), ref = makeRef('TP'), t = now();
-  run(`INSERT INTO trade_applications (id, ref, status, company, contact_name, email, phone, trades, counties, license_info, gl_status, wc_status,
-    project_size, crew_capacity, availability, examples, consent_marketing, ip_hash, created_at, updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
-    id, ref, 'new', company, contact, email, phone, JSON.stringify(otherTrade ? [...trades, `Other: ${otherTrade}`] : trades), JSON.stringify(counties), license,
-    gl, wc, size, crew, availability, examples, one(fields.consent_marketing) === '1' ? 1 : 0, ipHash, t, t);
+  const test = isTestSubmission(contact, email) || /^website test\b/i.test(company) ? 1 : 0;
+  try {
+    run(`INSERT INTO trade_applications (id, ref, status, company, contact_name, email, phone, trades, counties, license_info, gl_status, wc_status,
+      project_size, crew_capacity, availability, examples, consent_marketing, ip_hash, created_at, updated_at, idem_key, is_test) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+      id, ref, 'new', company, contact, email, phone, JSON.stringify(otherTrade ? [...trades, `Other: ${otherTrade}`] : trades), JSON.stringify(counties), license,
+      gl, wc, size, crew, availability, examples, one(fields.consent_marketing) === '1' ? 1 : 0, ipHash, t, t, idem, test);
+  } catch (err) {
+    const prev = idem && get('SELECT ref FROM trade_applications WHERE idem_key = ?', idem);
+    if (prev) return { ok: true, ref: prev.ref, duplicate: true };
+    throw err;
+  }
   audit('public', 'trade.create', 'trade', id);
-  await notify('trade', `Trade partner application ${ref}: ${company}`, `${company} (${contact}, ${email}, ${phone})\nTrades: ${trades.join(', ')}${otherTrade ? `, ${otherTrade}` : ''}\nCounties: ${counties.join(', ')}\n\nReview: ${SITE_URL}/admin/trades/${id}`);
+  track('trade_application_submitted');
+  notify('trade', `Trade partner application ${ref}: ${company}`, `${company} (${contact}, ${email}, ${phone})\nTrades: ${trades.join(', ')}${otherTrade ? `, ${otherTrade}` : ''}\nCounties: ${counties.join(', ')}\n\nReview: ${SITE_URL}/admin/trades/${id}`, { replyTo: email }).catch(() => {});
   return { ok: true, ref };
 }
 
@@ -183,7 +211,7 @@ export function createUploadLink(applicationId, by, days = 14) {
 }
 export function uploadLink(token) {
   const l = get('SELECT * FROM upload_links WHERE token_hash = ?', sha256(String(token || '')));
-  if (!l || l.expires_at < now()) return null;
+  if (!l || l.expires_at < now() || l.revoked_at) return null;
   return { ...l, app: get('SELECT id, ref, company, status FROM trade_applications WHERE id = ?', l.application_id) };
 }
 export const DOC_KINDS = ['General liability certificate', 'Workers’ compensation certificate or exemption', 'License', 'W-9', 'Reference list', 'Other'];

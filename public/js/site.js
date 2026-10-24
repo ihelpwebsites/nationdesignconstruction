@@ -65,18 +65,26 @@
       const unique = new Set(items.filter((li) => !li.hidden).map((li) => $('a', li).getAttribute('href'))).size;
       count.textContent = terms.length || filter ? `${unique} service${unique === 1 ? '' : 's'} shown` : `${unique} services`;
       empty.hidden = shown > 0;
+      resets.forEach((r) => { if (!r.closest('[data-dir-empty]')) r.hidden = !(terms.length || filter); });
       const url = new URL(location.href);
       if (q.value) url.searchParams.set('q', q.value); else url.searchParams.delete('q');
       history.replaceState(null, '', url);
     };
+    const setFilter = (b) => { filter = b.dataset.filter; btns.forEach((x) => x.setAttribute('aria-pressed', String(x === b))); };
+    const resets = $$('[data-dir-reset]');
     q.addEventListener('input', apply);
-    btns.forEach((b) => b.addEventListener('click', () => {
-      filter = b.dataset.filter;
-      btns.forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
-      apply();
-    }));
+    q.addEventListener('keydown', (e) => { if (e.key === 'Escape' && q.value) { q.value = ''; apply(); } });
+    btns.forEach((b) => b.addEventListener('click', () => { setFilter(b); apply(); }));
+    resets.forEach((r) => r.addEventListener('click', () => { q.value = ''; setFilter(btns[0]); apply(); q.focus(); }));
     apply();
   }
+
+  // ---- Contact-link measurement (aggregate counts only; a click is not proof of a call) ----
+  document.addEventListener('click', (e) => {
+    const a = e.target.closest('a[data-track]');
+    if (!a) return;
+    try { navigator.sendBeacon('/api/event', JSON.stringify({ e: `${a.dataset.track}_click`, l: location.pathname })); } catch { /* optional */ }
+  });
 
   // ---- Subtle reveal on scroll (skipped for reduced motion) ----
   const els = $$('.reveal');
