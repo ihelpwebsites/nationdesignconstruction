@@ -74,7 +74,7 @@ export function categoryPage(slug) {
 <section class="section"><div class="wrap">
   <div class="grid c3">${list(cat.services, (s) => `<a class="card" href="${s.path}"><div class="card-body">
     ${DELIVERY_TAG[s.delivery] ? `<span class="tag partner">${DELIVERY_TAG[s.delivery]}</span>` : ''}
-    <h3>${esc(s.name)}</h3><p>${esc(s.summary)}</p></div><div class="card-foot"><span class="textlink">Details &amp; pricing ${icon('arrow')}</span></div></a>`)}</div>
+    <h2 class="card-title">${esc(s.name)}</h2><p>${esc(s.summary)}</p></div><div class="card-foot"><span class="textlink">Details &amp; pricing ${icon('arrow')}</span></div></a>`)}</div>
   <p class="mt-5 muted max-60">Looking for something else? <a href="/services/">Search all services</a> or <a href="/start/">describe your project</a>.</p>
 </div></section>
 ${ctaBand()}`;

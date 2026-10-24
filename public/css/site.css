@@ -496,3 +496,4 @@ button.textlink { background: none; border: 0; border-bottom: 1px solid currentC
 .facts dt { color: var(--stone-ink); }
 .facts dd { margin: 0; }
 picture { display: contents; }
+.card-body h2.card-title { font: 400 1.6rem/1.15 var(--serif); }
