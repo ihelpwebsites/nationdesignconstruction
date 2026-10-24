@@ -12,7 +12,13 @@ export const PORT = Number(process.env.PORT || 4600);
 export const EMAIL = {
   provider: process.env.RESEND_API_KEY ? 'resend' : null,
   apiKey: process.env.RESEND_API_KEY || null,
-  from: process.env.EMAIL_FROM || null,                              // e.g. "Nation Design & Construction <notify@…>"
+  apiUrl: process.env.RESEND_API_URL || 'https://api.resend.com/emails',   // overridable for tests only
+  // Sender on the Resend-verified subdomain. Never a customer's address.
+  from: process.env.EMAIL_FROM || 'Nation Design & Construction <notify@notify.nationdesignconstruction.com>',
+  // Internal notifications go here (the owner's confirmed inbox) unless overridden in admin or by NOTIFY_EMAIL.
+  notifyTo: process.env.NOTIFY_EMAIL || 'hello@nationdesignconstruction.com',
+  // Reply-To on customer confirmations.
+  replyTo: process.env.EMAIL_REPLY_TO || 'hello@nationdesignconstruction.com',
 };
 export const TURNSTILE = { siteKey: process.env.TURNSTILE_SITE_KEY || null, secret: process.env.TURNSTILE_SECRET_KEY || null };
 export const FORM_SECRET = process.env.FORM_SECRET || null;          // signs form timing tokens; random per boot if unset

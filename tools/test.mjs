@@ -104,7 +104,7 @@ await test('structured data is valid JSON and contains no invented facts', async
     const s = JSON.stringify(blocks);
     for (const banned of ['aggregateRating', 'review', 'foundingDate', 'address', 'award', 'priceRange', 'areaServed', 'sameAs', 'employee', 'founder']) assert.ok(!s.includes(`"${banned}"`), `${p}: ${banned}`);
     const org = blocks.filter((b) => b['@id'] === 'https://nationdesignconstruction.com/#org');
-    assert.equal(org.length, 1, `${p}: exactly one business entity`); assert.equal(org[0].telephone, '+18138040555');
+    assert.equal(org.length, 1, `${p}: exactly one business entity`); assert.equal(org[0].telephone, '+18138040555'); assert.equal(org[0].email, 'hello@nationdesignconstruction.com');
   }
 });
 await test('all internal links on core pages resolve (crawl)', async () => {
@@ -218,13 +218,14 @@ await test('selected service carries into the form', async () => {
 });
 
 // ---------------------------------------------------------------- contact, crawlers, idempotency, measurement
-await test('confirmed phone (813) 804-0555 is consistent and clickable; unverified mailbox is not linked', async () => {
+await test('confirmed phone (813) 804-0555 and hello@ email are consistent and clickable', async () => {
   for (const p of ['/', '/about/', '/start/', '/services/roofing/', '/process/', '/privacy/']) {
     const h = await text(P + p);
     assert.ok(h.includes('href="tel:+18138040555"'), `${p}: tel link`);
     assert.ok(h.includes('(813) 804-0555'), `${p}: visible number`);
     assert.ok(!/804-055(?!5)|8040555(?!\d)(?<!18138040555)/.test(h.replace(/\+18138040555/g, '')), `${p}: malformed number`);
-    assert.ok(!h.includes('mailto:'), `${p}: mailto shown before mailbox is verified`);
+    assert.ok(h.includes('href="mailto:hello@nationdesignconstruction.com"'), `${p}: confirmed email link`);
+    assert.ok(!/mailto:(?!hello@nationdesignconstruction\.com)/.test(h), `${p}: unexpected email address`);
   }
 });
 await test('robots.txt allows search/answer crawlers, keeps training crawlers in a separate group, and blocks private paths', async () => {
@@ -270,7 +271,7 @@ await test('admin: wrong password refused; correct password signs in', async () 
   r = await fetch(D + '/admin/login/', { method: 'POST', redirect: 'manual', headers: { origin: D, 'content-type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams(ADMIN).toString() });
   assert.equal(r.status, 303); cookie = r.headers.get('set-cookie').split(';')[0]; assert.match(r.headers.get('set-cookie'), /HttpOnly/);
   const h = await text(D + '/admin/', { headers: { cookie } }); csrfTok = h.match(/name="_csrf" value="([^"]+)"/)[1];
-  assert.match(h, /Email notifications are <strong>off<\/strong>/);
+  assert.match(h, /Email notifications are <strong>off<\/strong>: the RESEND_API_KEY secret is not set/);
   assert.match(h, /phone_click/, 'event counts shown');
   assert.match(h, /inquiry_submitted/, 'server-side inquiry count shown');
 });

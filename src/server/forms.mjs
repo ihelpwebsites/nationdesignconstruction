@@ -7,7 +7,8 @@ import path from 'node:path';
 import { HttpError, readForm, rateLimit, clientIp, sniff, checkOrigin, EXT } from './http.mjs';
 import { run, get, now, newId, makeRef, sha256, tx, audit, PRIVATE_DIR } from './db.mjs';
 import { service } from './services.mjs';
-import { notify } from './email.mjs';
+import { notify, confirm } from './email.mjs';
+import { CONFIRMED } from '../data/business.mjs';
 import { track } from './events.mjs';
 import { FORM_SECRET, TURNSTILE, UPLOAD, BUDGETS, TIMINGS, PLAN_ITEMS, BUDGET_CEIL, SITE_URL } from '../config.mjs';
 import { PROJECT_TYPES } from '../site/pages/start.mjs';
@@ -156,6 +157,12 @@ export async function handleInquiry(req) {
     `${valid.length} attachment(s). Open in admin: ${SITE_URL}/admin/inquiries/${id}`].join('\n');
   // Stored durably above; the notification is queued and retried independently and can never undo the lead.
   notify('inquiry', `${test ? '[TEST] ' : ''}New inquiry ${ref}: ${projectType}`, text, { replyTo: email }).catch(() => {});
+  if (!test) confirm(email, `We received your project details (${ref}) — Nation Design & Construction`, [
+    `Hello ${name},`, '',
+    `Thank you for telling us about your project. Your reference is ${ref}.`, '',
+    'We’ll review what you sent, including any plans or photos, and contact you using the details you provided.', '',
+    `If you have more to add, reply to this email or call ${CONFIRMED.phone}.`, '', 'Nation Design & Construction', SITE_URL,
+  ].join('\n')).catch(() => {});
   return { ok: true, ref };
 }
 
@@ -198,6 +205,12 @@ export async function handleTradeApplication(req) {
   audit('public', 'trade.create', 'trade', id);
   track('trade_application_submitted');
   notify('trade', `Trade partner application ${ref}: ${company}`, `${company} (${contact}, ${email}, ${phone})\nTrades: ${trades.join(', ')}${otherTrade ? `, ${otherTrade}` : ''}\nCounties: ${counties.join(', ')}\n\nReview: ${SITE_URL}/admin/trades/${id}`, { replyTo: email }).catch(() => {});
+  if (!test) confirm(email, `We received your application (${ref}) — Nation Design & Construction`, [
+    `Hello ${contact},`, '',
+    `Thank you for applying to work with Nation Design & Construction. Your reference is ${ref}.`, '',
+    'We review every application individually. If it’s a fit, we’ll contact you and send a private link for insurance certificates, licenses and references — please don’t send documents by reply to this email.', '',
+    `Questions? Reply to this email or call ${CONFIRMED.phone}.`, '', 'Nation Design & Construction', SITE_URL,
+  ].join('\n')).catch(() => {});
   return { ok: true, ref };
 }
 
