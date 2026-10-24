@@ -10,6 +10,14 @@ Most facts are entered in **admin → Business details** and only appear once yo
 | **Notification sending** | ⛔ Only the secret is missing. Resend domain `notify.nationdesignconstruction.com` is **verified** (DKIM + send/rsend records at GoDaddy, 2026-10-24); sender, recipient (hello@) and Reply-To are built in. | Resend → API Keys → Create API key → permission **Sending access**, domain **notify.nationdesignconstruction.com** → copy it. Render → nationdc → Environment → Add `RESEND_API_KEY` = (the key) → Save, rebuild and deploy. Queued notifications from the last 3 days then send automatically to hello@ — check that inbox (and spam) for "[TEST] New inquiry NDC-…". |
 | **Bing Webmaster Tools** | ⛔ Needs your Microsoft or Google sign-in in a browser. (IndexNow already notified Bing of all 106 URLs.) | Sign in at bing.com/webmasters → "Import from Google Search Console". |
 
+## ⚠ Contracting qualification (legal — confirm first)
+Licensed subcontractors do not qualify Nation itself to contract for construction. In Florida, offering or advertising
+contracting generally requires the company (through a qualifying agent) to hold the appropriate certified or registered
+contractor license (e.g. general, building or residential) — confirm with counsel which applies and that Nation's legal
+entity is qualified. The site makes **no** license, insurance or bonding claims today, but all 75 service pages are
+published as offerings. If Nation is not yet qualified, set the services to **preview** or **hidden** in admin → Services
+until it is. Once qualified, add the exact license number(s) in admin → Business details (shown in the footer and About).
+
 ## Trust facts (shown only once verified)
 - **Contractor license number(s)** — Florida generally requires the license number in advertising; confirm with counsel. Shown in the footer and About.
 - **Confirmed service area** (counties/cities) — the site currently says "launching in Florida" and confirms coverage per project; it never claims statewide coverage.
