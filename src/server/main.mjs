@@ -70,6 +70,8 @@ function sendBody(req, res, status, type, body, headers = {}) {
 }
 
 // Rendered-page cache (keyed by path + content version). Pages with forms carry a time token, so they're not cached.
+// Paths rendered by the router even though they have file extensions.
+const GENERATED = new Set(['/robots.txt', '/llms.txt', '/sitemap.xml', '/site.webmanifest']);
 const cache = new Map();
 const query0 = (url) => Object.fromEntries(url.searchParams);
 const UNCACHED = new Set(['/start/', '/trade-partners/']);
@@ -148,7 +150,7 @@ const server = http.createServer(async (req, res) => {
       if (!p || p.ext !== m[2]) throw new HttpError(404, 'Not found');
       return sendBody(req, res, 200, TYPES['.' + p.ext], fs.readFileSync(path.join(MEDIA_DIR, `${p.id}.${p.ext}`)), { 'cache-control': 'public, max-age=86400' });
     }
-    if (path.extname(url.pathname) && !url.pathname.endsWith('.xml') && !url.pathname.endsWith('.txt') && !url.pathname.endsWith('.webmanifest') && staticFile(req, res, url.pathname)) return;
+    if (path.extname(url.pathname) && !GENERATED.has(url.pathname) && staticFile(req, res, url.pathname)) return;
 
     // Clean URLs: lowercase + trailing slash for pages.
     if (!path.extname(url.pathname) && !url.pathname.endsWith('/')) { res.writeHead(301, { location: url.pathname + '/' + url.search }).end(); return; }
