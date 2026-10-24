@@ -1,0 +1,14 @@
+{
+  "name": "nation-design-construction",
+  "private": true,
+  "type": "module",
+  "description": "Nation Design & Construction website, inquiry and trade-partner forms, and management area. No npm dependencies.",
+  "engines": { "node": ">=22.13" },
+  "scripts": {
+    "start": "node src/server/main.mjs",
+    "dev": "node src/server/main.mjs 4600",
+    "check:content": "node tools/check-content.mjs",
+    "test": "node tools/test.mjs",
+    "brand": "node tools/build-brand.mjs --png"
+  }
+}
