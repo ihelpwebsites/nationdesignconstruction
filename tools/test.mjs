@@ -82,6 +82,7 @@ await test('development: everything noindex', async () => {
 });
 await test('production: www → canonical host 301, http → https 301', async () => {
   let r = await get(P + '/about/?x=1', { headers: { 'x-forwarded-host': 'www.nationdesignconstruction.com' } }); assert.equal(r.status, 301); assert.equal(r.headers.get('location'), 'https://nationdesignconstruction.com/about/?x=1');
+  r = await get(P + '/services/', { headers: { 'x-forwarded-host': 'nationdc.onrender.com' } }); assert.equal(r.status, 301); assert.equal(r.headers.get('location'), 'https://nationdesignconstruction.com/services/');
   r = await get(P + '/about/', { headers: { 'x-forwarded-host': 'nationdesignconstruction.com', 'x-forwarded-proto': 'http' } }); assert.equal(r.status, 301); assert.equal(r.headers.get('location'), 'https://nationdesignconstruction.com/about/');
 });
 await test('security headers present (CSP, HSTS in production, nosniff, frame deny)', async () => {

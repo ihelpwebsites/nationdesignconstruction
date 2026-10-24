@@ -94,7 +94,7 @@ const server = http.createServer(async (req, res) => {
     if (url.pathname === '/healthz') { res.writeHead(200, { 'content-type': 'text/plain', 'cache-control': 'no-store' }).end('ok'); return; }
     // One canonical host: www (or any other alias) → canonical, preserving path and query.
     const host = String(req.headers['x-forwarded-host'] || req.headers.host || '').toLowerCase();
-    if (ENV === 'production' && host && host !== CANONICAL_HOST && host.replace(/^www\./, '') === CANONICAL_HOST.replace(/^www\./, '')) {
+    if (ENV === 'production' && host && host !== CANONICAL_HOST && (host.replace(/^www\./, '') === CANONICAL_HOST.replace(/^www\./, '') || host.endsWith('.onrender.com'))) {
       res.writeHead(301, { location: `${SITE_URL}${url.pathname}${url.search}` }).end(); return;
     }
     if (ENV === 'production' && req.headers['x-forwarded-proto'] === 'http') { res.writeHead(301, { location: `${SITE_URL}${url.pathname}${url.search}` }).end(); return; }
