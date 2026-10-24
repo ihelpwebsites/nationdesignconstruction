@@ -1,26 +1,30 @@
-# Business facts & decisions needed from the owner
+# Private completion checklist (owner) — updated 2026-10-24
 
-Nothing below is shown on the site until you provide it (most items go in **admin → Business details** and must be
-marked *verified*). The site is honest without them, but some features stay off.
+Nothing here appears on the website. Items marked ⛔ block a feature; the rest strengthen trust and search.
+Most facts are entered in **admin → Business details** and only appear once you tick **verified**.
 
-## Blocking a feature
-| Item | Why it matters | Where |
+## ⛔ Blocking
+| Item | Status | What to do |
 |---|---|---|
-| **Business inbox that actually receives mail** (e.g. hello@nationdesignconstruction.com) | The domain currently has **no MX records**, so no mailbox exists at it. Lead notifications stay off until an inbox is verified. Submissions are still saved in admin. | Set up email hosting (e.g. Google Workspace / Microsoft 365 / GoDaddy email), then admin → Business details → Notification inbox |
-| **Email sending key** (Resend API key + a verified sending domain) | Required to send notification emails from the server. Paste the key into Render yourself — never into chat or code. | Render → nationdc → Environment: `RESEND_API_KEY`, `EMAIL_FROM` |
-| **Contractor license number(s)** | Florida generally requires the contractor license number on advertising (confirm with your counsel). Shown in the footer once verified. | admin → Business details |
+| **Mailbox for hello@nationdesignconstruction.com** | ⛔ The domain has **no MX records** (checked 2026-10-24), so this mailbox does not exist. The site therefore shows the phone and form only, never the email. | Set up email hosting for the domain (Google Workspace, Microsoft 365 or GoDaddy email). Add its MX/SPF/DKIM records — don't change the A/CNAME/TXT records listed in DEPLOYMENT.md. Send and receive one message, then in admin tick "verified" for the email and set it as the notification inbox. |
+| **Notification sending** | ⛔ No email provider key on the server. Leads are stored safely regardless; notifications queue as "not configured" and are delivered automatically (last 3 days) once set up. | In Resend (or similar), verify a sending subdomain (e.g. notify.nationdesignconstruction.com — add its SPF/DKIM records at GoDaddy), then add `RESEND_API_KEY` and `EMAIL_FROM` in Render → nationdc → Environment yourself. Never paste keys into chat. |
+| **Bing Webmaster Tools** | ⛔ Needs your Microsoft or Google sign-in in a browser. (IndexNow already notified Bing of all 106 URLs.) | Sign in at bing.com/webmasters → "Import from Google Search Console". |
 
-## Recommended before promoting the site
-- **Confirmed service area** (counties/cities you will actually serve). Until then the site says "starting in Florida" and asks for the project location.
-- **Public phone number**, and optionally an office address and hours.
-- **Which services are available now** — every service starts as *preview* (visible, not indexed, with an "availability being confirmed" note). Switch each to *published* in admin → Services as partners are lined up.
-- **Validated pricing** for any service where you want figures shown (range or starting price, unit, minimum, inclusions, exclusions, geography, review date).
-- **Project minimums** per service (optional; used to flag smaller inquiries — no universal threshold is applied).
-- **Real project photos** (with owner permission) to replace the "design inspiration" section with authentic work.
+## Trust facts (shown only once verified)
+- **Contractor license number(s)** — Florida generally requires the license number in advertising; confirm with counsel. Shown in the footer and About.
+- **Confirmed service area** (counties/cities) — the site currently says "launching in Florida" and confirms coverage per project; it never claims statewide coverage.
+- **Leadership** (name and role) and an **insurance statement** you can document — shown on About.
+- Optional: office address and hours.
 
-## Content decisions to confirm (written conservatively; edit or tell us to change)
-- Preconstruction/design fees described as typically folded into the project if you build; permits and HOA coordination included in complete-project scope; design-professional, survey, geotechnical and government fees passed through as separate lines.
-- Offered services: open-permit research before purchase; recycling of concrete/metal/wood "where practical"; site walk before engineer involvement (sinkhole/foundation); temporary tarping/board-up coordination after storms; phased/after-hours work in occupied buildings; post-occupancy check-in; HVAC filter replacement at turnover.
-- Florida statements kept general and hedged (permits for structural/MEP/roof/window work; asbestos survey commonly required before demolition; termite protection for new construction; pool barrier requirements; irrigation rain sensors; wind-mitigation inspections). Worth a quick review by your licensed partners.
-- No company warranty is promised anywhere; turnover references manufacturer and (where offered) trade-partner warranties.
-- Storm-damage pages state the company is not a public adjuster and provides scope documentation and pricing only.
+## Decisions
+- **Which services to offer now**: all 75 detailed services were published 2026-10-24 based on your stated scope. Hide or set to preview in admin → Services any you can't deliver yet.
+- **Validated pricing** (range or starting price, unit, minimum, inclusions/exclusions, area, review date) for any service where you want figures shown. None are invented.
+- **Project minimums** per service (optional; flags smaller inquiries — no universal minimum is applied).
+- **AI model-training crawlers**: currently allowed (search/answer crawlers are always allowed). Change in admin → Business details if you prefer to opt out.
+- **Search Console**: the property was added and verified under the Google account signed in to Chrome (NVR account). Add your business Google account as an owner (Settings → Users and permissions) if it should live there.
+- **Real project photos** with owner permission — replaces "design inspiration" on the home page with authentic work.
+
+## Content to sanity-check
+- Service pages state that licensed trades and design professionals perform regulated work and that Nation coordinates, supervises and checks it. Confirm this matches how you will contract.
+- Commitments written as process (not guarantees): written change pricing before work proceeds; scheduled updates; coverage confirmed before site visits.
+- The drafting photo is the Unsplash original with the NATION logo added (supplied by you); it stays labeled "Representative photo… (edited)" and credits the photographer.

@@ -30,6 +30,28 @@ Render issues and renews the TLS certificates. `www` → apex 301 (Render edge);
 `BOOTSTRAP_ADMIN_EMAIL`; change it in admin → Business details after signing in). Optional later: `RESEND_API_KEY`,
 `EMAIL_FROM`, `TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`.
 
+## Backups & rollback
+- Render snapshots the disk (database + uploads) **every 24 hours, kept 7 days** (Render → nationdc → Disks → Snapshots;
+  restoring discards later changes). Code rollback: Render → Events → Rollback, or `git revert` + Manual Deploy.
+- Git checkpoint before the audit pass: tag `checkpoint-pre-audit-2026-10-24`.
+
+## Search engines
+- Google Search Console: Domain property `nationdesignconstruction.com` verified 2026-10-24 by DNS TXT
+  (`google-site-verification=…` at GoDaddy — **do not delete**). Sitemap submitted: Success, 106 URLs discovered.
+- IndexNow (Bing and partners): key file `public/<key>.txt`; `node --use-system-ca tools/indexnow.mjs` after content
+  changes (2026-10-24: 202 Accepted, 106 URLs). Bing Webmaster Tools itself needs the owner's sign-in.
+
+## Audit pass verification (2026-10-24, live)
+- 106 pages crawled, 148 assets: no broken links/assets. All 106 sitemap URLs indexable (meta `index`, no X-Robots
+  noindex, self canonical); admin/API/upload-link/404 pages noindex. www/http/onrender/no-slash → 301 to canonical.
+- Phone `tel:+18138040555` on every page; no mailto until the mailbox is verified. Structured data: one
+  GeneralContractor entity (#org) with telephone/contactPoint; no areaServed, ratings, reviews or addresses.
+- Live inquiry NDC-SBZWY8 (test, example.com → marked test) stored; identical retry returned the same reference.
+  Cross-origin 403; bogus upload link 404; admin/files unauthenticated → sign-in; private paths 404.
+- PageSpeed lab (pagespeed.web.dev, Lighthouse, Moto G-class mobile / desktop): home 98·100·100·100 (LCP 2.0 s mobile,
+  0.7 s desktop), category 100·100·100·100 (LCP 1.5 s), kitchen service 100s (LCP 1.4 s), /start/ 100s (LCP 1.4 s,
+  CLS 0.02), trade partners 100s (LCP 1.4 s; desktop 0.3 s). No real-user (CrUX) data exists yet for a new site.
+
 ## Launch verification (2026-10-24)
 - `node tools/test.mjs`: 35/35 (routes, 404, canonical/indexing, redirects, headers, structured data, link crawl,
   labels/alt text, inquiry validation/spam/upload/persistence, admin auth/CSRF/throttling, private files, pricing

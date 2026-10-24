@@ -41,6 +41,19 @@ tools/                   test.mjs (e2e), check-content.mjs, build-brand.mjs, fet
 ```
 Preview: launch config **nationdc** (parent `.claude/launch.json`, port 4600). Local data in `data/` (git-ignored).
 
+## Since the 2026-10-24 audit pass
+- Contact facts live in `src/data/business.mjs` (`CONFIRMED` phone; email shown only once verified in admin).
+  Use `phoneLink()` / `emailLink()` / `contactPanel()` from `src/site/layout.mjs` — never hard-code the number.
+- All 75 services are `published` (one-time migration in `src/server/services.mjs`; owner edits win). Sitemap
+  `<lastmod>` comes from `src/data/lastmod.mjs` — bump a date only when that content materially changes.
+- Leads: `_idem` submission key makes retries idempotent; notifications queue in `outbox` with retries
+  (`src/server/email.mjs`). Aggregate events in `events` table (`src/server/events.mjs`), no personal data.
+- Photos: `<picture>` AVIF + WebP from `tools/fetch-images.mjs`; entries may set `file` (versioned name), `widths`,
+  `position`, `source` (local master in brand/src/photos), `edited`.
+- After content changes on production: `node --use-system-ca tools/indexnow.mjs`.
+- Patch files with the Edit tool or scripts written via the Write tool — bash heredocs strip backslashes in regexes
+  (`\b` became a backspace character on 2026-10-24).
+
 ## Verify every change
 `node tools/check-content.mjs && node tools/test.mjs`
 Headless screenshots: `node tools/shots.mjs 1440 4000 name=http://localhost:4600/path/` → `scratch/shots/`
