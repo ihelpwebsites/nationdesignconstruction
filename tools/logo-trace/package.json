@@ -1,0 +1,5 @@
+{
+  "private": true,
+  "description": "One-off tooling: traces the approved NATION logo raster into SVG. Not used by the site at runtime.",
+  "dependencies": { "potrace": "2.1.8" }
+}

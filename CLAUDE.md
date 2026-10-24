@@ -21,6 +21,14 @@ Owner facts still needed: `docs/OWNER-INPUTS.md`. Deployment & DNS: `docs/DEPLOY
 6. **Private data**: uploads in `$DATA_DIR/private` (never under `public/`), downloadable only by signed-in staff.
    Admin POSTs require same-origin + CSRF. Email notifications only via configured provider + verified inbox.
 
+## Brand (approved 2026-10-24)
+The approved logo is `brand/src/approved-logo-reference.png` (owner's "Restored Bronze NATION Logo"). Never redraw it,
+swap its font, or bring back the old N mark. Vector files in `public/brand/nation-*.svg` were traced from that raster
+(`tools/logo-trace/`, potrace; calibrated, ≈97.7% pixel overlap) — re-run `build.cjs` then `compose.cjs` there (after
+`npm i` in that folder) only if the artwork changes; then `node tools/build-brand.mjs` (PowerShell) for icons/og-image.
+Header uses `nation-logo-tight.svg` at 264 px wide (keeps DESIGN & CONSTRUCTION readable); dark backgrounds use
+`nation-logo-ivory-tight.svg`. The approved story text lives in `src/content/story.mjs` — do not reword it.
+
 ## Architecture (Node ≥ 22.13, no npm dependencies)
 ```
 src/config.mjs           env (SITE_ENV, SITE_URL, DATA_DIR, RESEND_*, TURNSTILE_*, FORM_SECRET …)

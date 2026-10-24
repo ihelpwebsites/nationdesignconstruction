@@ -146,7 +146,7 @@ const server = http.createServer(async (req, res) => {
     }
     if (page.redirect) { res.writeHead(301, { location: page.redirect }).end(); return; }
     if (page.noindex) res.setHeader('x-robots-tag', 'noindex, follow');
-    return sendBody(req, res, page.status, page.type || 'text/html; charset=utf-8', page.body, { 'cache-control': page.status === 200 && cacheable ? 'public, max-age=300' : 'no-store' });
+    return sendBody(req, res, page.status, page.type || 'text/html; charset=utf-8', page.body, { 'cache-control': page.status === 200 && cacheable ? 'no-cache' : 'no-store' });
   } catch (err) {
     if (err?.status && err.status < 500) {
       if (err.status === 404) { const p = route('/__404__', {}); return sendBody(req, res, 404, 'text/html; charset=utf-8', p.body, { 'cache-control': 'no-store' }); }

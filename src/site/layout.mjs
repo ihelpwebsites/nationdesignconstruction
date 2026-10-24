@@ -61,7 +61,7 @@ function drawer(cats, current) {
   return `<div class="drawer" id="drawer" hidden role="dialog" aria-modal="true" aria-label="Menu">
   <div class="wrap">
     <div class="bar">
-      <a class="brand" href="/"><img src="/brand/logo-horizontal-light.svg" alt="Nation Design &amp; Construction — home" width="220" height="40"></a>
+      <a class="brand" href="/"><img src="/brand/nation-logo-tight.svg" alt="Nation Design &amp; Construction — home" width="264" height="60"></a>
       <button class="menu-toggle" type="button" data-close-drawer>${icon('close')}<span>Close</span></button>
     </div>
     <nav aria-label="Mobile">
@@ -94,7 +94,7 @@ function header(current) {
   const isCurrent = (href) => current === href || (href !== '/' && current.startsWith(href));
   return `<header class="site-header">
   <div class="wrap bar">
-    <a class="brand" href="/"><img src="/brand/logo-horizontal-light.svg" alt="Nation Design &amp; Construction — home" width="220" height="40"></a>
+    <a class="brand" href="/"><img src="/brand/nation-logo-tight.svg" alt="Nation Design &amp; Construction — home" width="264" height="60"></a>
     <nav class="nav" aria-label="Main">
       <ul>
         ${list(NAV, (n) => n.mega
@@ -117,7 +117,7 @@ function footer() {
   <div class="wrap">
     <div class="foot-top">
       <div class="foot-brand">
-        <img src="/brand/logo-horizontal-dark.svg" alt="Nation Design &amp; Construction" width="240" height="46" loading="lazy">
+        <img src="/brand/nation-logo-ivory-tight.svg" alt="Nation Design &amp; Construction" width="300" height="68" loading="lazy">
         <p class="max-40">Design-focused residential and commercial construction, starting in Florida. One point of contact from first conversation to final cleanup.</p>
         ${f.phone ? `<p><a href="tel:${attr(f.phone.replace(/[^\d+]/g, ''))}">${esc(f.phone)}</a></p>` : ''}
         ${f.email ? `<p><a href="mailto:${attr(f.email)}">${esc(f.email)}</a></p>` : ''}
@@ -145,7 +145,7 @@ export function organizationLd() {
   const f = facts();
   const org = {
     '@context': 'https://schema.org', '@type': 'GeneralContractor', '@id': `${SITE_URL}/#org`,
-    name: BUSINESS.name, url: `${SITE_URL}/`, logo: `${SITE_URL}/brand/logo-stacked-light.png`, image: `${SITE_URL}/brand/icon-512.png`,
+    name: BUSINESS.name, url: `${SITE_URL}/`, logo: `${SITE_URL}/brand/nation-logo.png`, image: `${SITE_URL}/brand/icon-512.png`,
     description: 'Design-focused residential and commercial construction company managing complete projects from concept and planning through construction and final cleanup.',
   };
   if (f.email) org.email = f.email;
@@ -162,7 +162,7 @@ export function layout(page) {
   const canonical = `${SITE_URL}${page.path}`;
   const robots = !INDEXING || page.noindex ? 'noindex, follow' : 'index, follow, max-image-preview:large';
   const title = page.title === BUSINESS.name ? page.title : `${page.title} | ${BUSINESS.name}`;
-  const og = page.ogImage ? `${SITE_URL}/img/${page.ogImage}-1200.webp` : `${SITE_URL}/img/hero-home-dusk-1200.webp`;
+  const og = page.ogImage ? `${SITE_URL}/img/${page.ogImage}-1200.webp` : `${SITE_URL}/brand/og-image.png`;
   const ld = [organizationLd(), ...(page.jsonld || [])];
   const preload = page.preloadImage ? `<link rel="preload" as="image" href="/img/${page.preloadImage}-1200.webp" imagesrcset="${WIDTHS.map((w) => `/img/${page.preloadImage}-${w}.webp ${w}w`).join(', ')}" imagesizes="100vw" fetchpriority="high">` : '';
   return `<!doctype html>

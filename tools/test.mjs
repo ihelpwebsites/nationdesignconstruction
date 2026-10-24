@@ -123,6 +123,38 @@ await test('no placeholder prices, fake claims or lorem ipsum in rendered pages'
   }
 });
 
+// ---------------------------------------------------------------- approved brand & story
+await test('approved logo everywhere; no old logo variants; icons and social card present', async () => {
+  for (const p of ['/', '/about/', '/services/', '/admin/login/']) {
+    const h = await text(P + p);
+    assert.ok(!/logo-horizontal|logo-stacked|\/brand\/mark-/.test(h), `${p}: old logo reference`);
+  }
+  const h = await text(P + '/');
+  assert.match(h, /<img src="\/brand\/nation-logo-tight\.svg" alt="Nation Design &amp; Construction — home" width="264" height="60">/);
+  assert.match(h, /nation-logo-ivory-tight\.svg/);
+  assert.match(h, /og:image" content="https:\/\/nationdesignconstruction.com\/brand\/og-image.png"/);
+  for (const a of ['/brand/nation-logo.svg', '/brand/nation-symbol.svg', '/brand/favicon.svg', '/favicon.ico', '/brand/apple-touch-icon.png', '/brand/og-image.png']) assert.equal((await get(P + a)).status, 200, a);
+  const svg = await text(P + '/brand/nation-logo.svg'); assert.ok(!svg.includes('<image'), 'logo SVG must be true vector');
+});
+await test('About page: intro, then the approved story verbatim at #our-story, then approach and CTA', async () => {
+  const { STORY, STORY_CLOSE, STORY_HEADING } = await import('../src/content/story.mjs');
+  const h = await text(P + '/about/');
+  const esc = (s) => s.replace(/&/g, '&amp;').replace(/'/g, '&#39;');
+  const iH1 = h.indexOf('<h1'), iStory = h.indexOf('id="our-story"'), iApproach = h.indexOf('id="approach-h"'), iCta = h.indexOf('id="cta-h"');
+  assert.ok(iH1 < iStory && iStory < iApproach && iApproach < iCta, 'section order');
+  assert.ok(h.includes('The meaning behind Nation'), 'label'); assert.ok(h.includes(esc(STORY_HEADING)), 'heading');
+  for (const p of [...STORY, STORY_CLOSE]) assert.ok(h.includes(`>${esc(p)}</p>`), `missing paragraph: ${p.slice(0, 40)}`);
+  assert.match(h, /<img src="\/brand\/nation-symbol.svg" alt="" aria-hidden="true" width="342" height="362"/);
+  assert.ok(!h.includes('Principles you can hold us to'), 'duplicate values block removed');
+});
+await test('homepage story preview sits just before the inquiry section and links to /about/#our-story', async () => {
+  const h = await text(P + '/');
+  const iPrev = h.indexOf('id="meaning-h"'), iStart = h.indexOf('id="start-h"'), iFaq = h.indexOf('id="faq-h"');
+  assert.ok(iFaq < iPrev && iPrev < iStart, 'order');
+  assert.match(h, /href="\/about\/#our-story">The meaning behind Nation/);
+  assert.ok(!h.includes('The warm bronze reflects'), 'full story must not be on the homepage');
+});
+
 // ---------------------------------------------------------------- inquiry form
 async function token(base, page = '/start/') { const h = await text(base + page); return h.match(/name="_t" value="([^"]+)"/)[1]; }
 function inquiryForm(t, extra = {}) {

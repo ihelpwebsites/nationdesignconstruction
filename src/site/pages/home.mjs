@@ -5,6 +5,7 @@ import { PROCESS, PRINCIPLES, HOME_FAQS } from '../../content/company.mjs';
 import { CONCEPTS, conceptArt } from '../concepts.mjs';
 import { publishedPhotos } from '../../server/photos.mjs';
 import { inquiryMini } from './start.mjs';
+import { PREVIEW_HEADING, PREVIEW_TEXT } from '../../content/story.mjs';
 
 export function home() {
   const cats = categories();
@@ -147,7 +148,18 @@ export function home() {
   </div>
 </section>
 
-<section class="section" aria-labelledby="start-h">
+<section class="section story-preview" aria-labelledby="meaning-h">
+  <div class="wrap story-preview-grid">
+    <img class="story-preview-mark" src="/brand/nation-symbol.svg" alt="" aria-hidden="true" width="342" height="362" loading="lazy" decoding="async">
+    <div class="stack">
+      <h2 id="meaning-h">${esc(PREVIEW_HEADING)}</h2>
+      <p class="lede">${esc(PREVIEW_TEXT)}</p>
+      <p><a class="textlink" href="/about/#our-story">The meaning behind Nation ${icon('arrow')}</a></p>
+    </div>
+  </div>
+</section>
+
+<section class="section stone" aria-labelledby="start-h">
   <div class="wrap split top">
     <div><p class="eyebrow">Start a conversation</p><h2 id="start-h">Tell us about your project.</h2>
       <p class="lede mt-3">Three short steps. Choose the type of project here and continue on the next page, where you can add plans or photos.</p></div>

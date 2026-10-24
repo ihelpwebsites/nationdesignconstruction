@@ -28,7 +28,7 @@ function page(res, title, body, staff, { status = 200, headers = {} } = {}) {
   res.writeHead(status, { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store', ...headers });
   res.end(`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow">
 <title>${esc(title)} · Admin · Nation Design &amp; Construction</title><link rel="icon" href="/brand/favicon.svg"><link rel="stylesheet" href="/css/site.css?v=${ASSET_VERSION}"><link rel="stylesheet" href="/css/admin.css?v=${ASSET_VERSION}"></head>
-<body class="admin"><header class="a-head"><a href="/admin/" class="a-brand"><img src="/brand/logo-horizontal-dark.svg" alt="Nation Design &amp; Construction" height="30" width="160"><span>Admin</span></a>${nav}</header>
+<body class="admin"><header class="a-head"><a href="/admin/" class="a-brand"><img src="/brand/nation-logo-ivory-tight.svg" alt="Nation Design &amp; Construction" height="36" width="159"><span>Admin</span></a>${nav}</header>
 <main class="a-main" id="main">${body}</main></body></html>`);
 }
 const csrf = (staff) => `<input type="hidden" name="_csrf" value="${attr(staff.session.csrf)}">`;

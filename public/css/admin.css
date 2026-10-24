@@ -2,7 +2,7 @@
 body.admin { background: #F3EFE7; font-size: 15px; }
 .a-head { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 28px; padding: 12px var(--gutter); background: var(--charcoal); color: var(--ivory); }
 .a-brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--bronze-light); font: 600 .74rem var(--sans); letter-spacing: .14em; text-transform: uppercase; }
-.a-brand img { height: 30px; width: auto; }
+.a-brand img { height: 36px; width: auto; }
 .a-nav { display: flex; flex-wrap: wrap; gap: 4px 16px; align-items: center; margin-left: auto; }
 .a-nav a, .linkbtn { color: #E9E3D8; text-decoration: none; font-size: .92rem; padding: 6px 0; background: none; border: 0; cursor: pointer; font-family: var(--sans); }
 .a-nav a:hover, .linkbtn:hover { color: var(--bronze-light); text-decoration: underline; }

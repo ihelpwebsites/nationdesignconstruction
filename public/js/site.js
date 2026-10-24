@@ -37,7 +37,7 @@
       const exp = b.getAttribute('aria-expanded') === 'true';
       b.setAttribute('aria-expanded', String(!exp)); t.hidden = exp;
     }));
-    matchMedia('(min-width: 1080px)').addEventListener('change', (m) => { if (m.matches && !drawer.hidden) closeD(); });
+    matchMedia('(min-width: 1180px)').addEventListener('change', (m) => { if (m.matches && !drawer.hidden) closeD(); });
   }
 
   // ---- Services directory: search + category filters ----

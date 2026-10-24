@@ -3,6 +3,7 @@ import { esc, attr, icon, list, UNIT_NAME, money, fmtDate } from '../html.mjs';
 import { layout, crumbs, pic, credit, ctaBand, faqBlock } from '../layout.mjs';
 import { categories, overviews, services } from '../../server/services.mjs';
 import { PROCESS, PRINCIPLES } from '../../content/company.mjs';
+import { STORY, STORY_LABEL, STORY_HEADING, STORY_CLOSE } from '../../content/story.mjs';
 import { CONCEPTS, conceptArt } from '../concepts.mjs';
 import { publishedPhotos } from '../../server/photos.mjs';
 import { formToken, uploadLink, DOC_KINDS } from '../../server/forms.mjs';
@@ -109,27 +110,31 @@ export function aboutPage() {
   const body = `
 <section class="page-hero"><div class="wrap">
   ${c.html}<p class="eyebrow">About</p><h1>A construction company that takes design seriously.</h1>
-  <p class="lede">Nation Design &amp; Construction is a residential and commercial construction company starting in Florida, built around one idea: well-designed projects deserve equally well-organized construction.</p>
+  <p class="lede">Nation Design &amp; Construction is a residential and commercial construction company starting in Florida. We handle complete projects — from concept and planning through construction and final cleanup — as well as substantial standalone projects, and we welcome clients who already have drawings, engineering or site plans.</p>
 </div></section>
-<section class="section"><div class="wrap split top">
+
+<section class="story" id="our-story" aria-labelledby="story-h"><div class="wrap story-grid">
+  <div class="story-mark"><img src="/brand/nation-symbol.svg" alt="" aria-hidden="true" width="342" height="362" loading="lazy" decoding="async"></div>
+  <div class="story-text">
+    <p class="eyebrow">${esc(STORY_LABEL)}</p>
+    <h2 id="story-h">${esc(STORY_HEADING)}</h2>
+    ${list(STORY, (p, i) => `<p${i === 0 ? ' class="story-first"' : ''}>${esc(p)}</p>`)}
+    <p class="story-close">${esc(STORY_CLOSE)}</p>
+  </div>
+</div></section>
+
+<section class="section stone" aria-labelledby="approach-h"><div class="wrap split top">
   <div class="prose stack">
-    <p>Clients usually have to choose: a design-led firm that hands drawings to someone else to build, or a builder for whom design is an afterthought. We set out to close that gap — handling complete projects from concept and planning through construction and final cleanup, as well as substantial standalone projects.</p>
-    <p>If you already have architectural drawings, engineering or site plans, you are just as welcome. Our job then is to read them carefully, price them honestly and build them faithfully.</p>
-    <h2>How we deliver</h2>
-    <p>We work with specialist subcontractors and professional partners — licensed trades, architects, engineers and designers — chosen for the specific work. We manage coordination, logistics, supervision and quality, and you have one main point of contact throughout.</p>
-    <p>Trade partners go through prequalification before they work on our projects, and approval is specific to the services and areas they cover. <a href="/trade-partners/">Trade partners can apply here.</a></p>
-    <h2>Where we work</h2>
-    <p>${f.serviceArea ? esc(f.serviceArea) : 'We’re starting in Florida. Tell us where your project is and we’ll confirm whether it’s in an area we can serve well.'}</p>
+    <p class="eyebrow">Our approach</p>
+    <h2 id="approach-h">How we work</h2>
+    <p>Clients usually have to choose between a design-led firm that hands drawings to someone else to build, and a builder for whom design is an afterthought. We close that gap. If you need design, we coordinate it from early layouts through construction documents; if you already have plans, we read them carefully, price them honestly and build them faithfully.</p>
+    <p>We work with specialist subcontractors and professional partners — licensed trades, architects, engineers and designers — chosen for the specific work. We manage coordination, logistics, supervision and quality, and you have one main point of contact throughout. Trade partners are prequalified, with approval specific to the services and areas they cover (<a href="/trade-partners/">trade partners can apply here</a>).</p>
+    <p>${f.serviceArea ? `We currently serve ${esc(f.serviceArea)}.` : 'We’re starting in Florida. Tell us where your project is and we’ll confirm whether it’s in an area we can serve well.'}</p>
+    <p><a class="textlink" href="/process/">See our process, step by step ${icon('arrow')}</a></p>
   </div>
-  <div class="stack-lg">
-    <figure><div class="fig r45">${pic('drafting-hands', { sizes: '(min-width: 960px) 45vw, 100vw' })}</div><figcaption class="credit">${credit('drafting-hands')}</figcaption></figure>
-  </div>
+  <figure><div class="fig r45">${pic('drafting-hands', { sizes: '(min-width: 960px) 45vw, 100vw' })}</div><figcaption class="credit">${credit('drafting-hands')}</figcaption></figure>
 </div></section>
-<section class="section stone"><div class="wrap">
-  <div class="section-head"><p class="eyebrow">What we stand for</p><h2>Principles you can hold us to.</h2></div>
-  <div class="grid c3">${list(PRINCIPLES, (p) => `<div class="panel">${icon(p.icon)}<h3>${esc(p.title)}</h3><p class="muted">${esc(p.text)}</p></div>`)}</div>
-</div></section>
-${ctaBand()}`;
+${ctaBand({ title: 'Tell us what this place will mean to you.' })}`;
   return layout({ title: 'About Nation Design & Construction', description: 'A design-focused residential and commercial construction company starting in Florida — complete projects or work from your existing plans, with one point of contact.', path: '/about/', body, jsonld: [c.ld] });
 }
 
@@ -301,20 +306,18 @@ export function notFoundPage(path) {
 // ---- Brand assets (internal, noindex) -----------------------------------------------------------------
 export function brandPage() {
   const files = [
-    ['logo-horizontal-light', 'Horizontal — for light backgrounds', '#F6F2EA'], ['logo-horizontal-dark', 'Horizontal — for dark backgrounds', '#1E1D1B'],
-    ['logo-stacked-light', 'Stacked — light backgrounds', '#F6F2EA'], ['logo-stacked-dark', 'Stacked — dark backgrounds', '#1E1D1B'],
-    ['logo-horizontal-black', 'One-color black (signs, forms, single-color print)', '#FFFFFF'], ['logo-horizontal-white', 'One-color white (vehicle vinyl, shirts)', '#2A2926'],
-    ['logo-stacked-black', 'Stacked one-color black', '#FFFFFF'], ['logo-stacked-white', 'Stacked one-color white', '#2A2926'],
-    ['mark-light', 'N mark — light backgrounds', '#F6F2EA'], ['mark-dark', 'N mark — dark backgrounds', '#1E1D1B'], ['mark-black', 'N mark — black', '#FFFFFF'], ['mark-white', 'N mark — white', '#2A2926'],
+    ['nation-logo', 'Primary logo — light backgrounds', '#F6F2EA', true], ['nation-logo-ivory', 'Logo for dark backgrounds (ivory lettering, light-bronze symbol)', '#1E1D1B', true],
+    ['nation-logo-bronze-ivory', 'Dark backgrounds — bronze symbol (use where the bronze has enough contrast)', '#3A3834', false],
+    ['nation-logo-black', 'One-color black (forms, single-color print)', '#FFFFFF', false], ['nation-logo-white', 'One-color white (vehicle vinyl, shirts, embroidery)', '#2A2926', false],
+    ['nation-symbol', 'Symbol — bronze', '#F6F2EA', true], ['nation-symbol-light', 'Symbol — light bronze for dark backgrounds', '#1E1D1B', false],
   ];
   const body = `<section class="page-hero"><div class="wrap"><p class="eyebrow">Brand</p><h1>Logo &amp; brand assets</h1>
-  <p class="lede">Editable vector files (SVG, all text outlined — no fonts needed). Use the SVG for vehicles, signs and shirts; PNGs are provided for documents.</p></div></section>
-<section class="section"><div class="wrap grid c2">${list(files, ([f, label, bg]) => `<figure class="panel"><div style="background:${bg};padding:32px;display:grid;place-items:center;min-height:180px"><img src="/brand/${f}.svg" alt="${attr(label)}" style="max-height:120px;width:auto" loading="lazy"></div>
-  <figcaption><strong>${esc(label)}</strong><br><a href="/brand/${f}.svg" download>SVG</a>${['logo-horizontal-light', 'logo-horizontal-dark', 'logo-stacked-light', 'logo-stacked-dark', 'logo-horizontal-black', 'logo-horizontal-white'].includes(f) ? ` · <a href="/brand/${f}.png" download>PNG</a>` : ''}</figcaption></figure>`)}
-  <figure class="panel"><div style="padding:32px;display:flex;gap:24px;align-items:center"><img src="/brand/favicon.svg" alt="Favicon" width="64" height="64"><img src="/brand/apple-touch-icon.png" alt="App icon" width="64" height="64"></div><figcaption><strong>Favicon &amp; app icon</strong><br><a href="/brand/favicon.svg" download>favicon.svg</a> · <a href="/favicon.ico" download>favicon.ico</a> · <a href="/brand/icon-512.png" download>icon-512.png</a></figcaption></figure>
-  <div class="panel"><h2>Colors</h2><ul class="ticks"><li>Charcoal #1E1D1B</li><li>Warm ivory #F6F2EA</li><li>Stone #D8D0C2</li><li>Bronze #9C6B3C (accent; #8C5E33 for small text) · light bronze #C99A69 on dark</li></ul>
-  <h2 class="mt-2">Type</h2><p class="small">Instrument Serif (display) and Instrument Sans (text), both SIL Open Font License. The NATION wordmark is custom-drawn geometry.</p>
-  <h2 class="mt-2">Clear space &amp; sizes</h2><p class="small">Keep clear space equal to the height of the N mark’s ground line ×4 around the logo. Minimum width: horizontal logo 120 px / 30 mm; mark alone 16 px / 6 mm. Use one-color versions for embroidery and vinyl.</p></div>
+  <p class="lede">The approved NATION logo. SVG files are vector outlines traced from the approved artwork (no fonts needed) — use them for signs, vehicles and shirts. Transparent PNGs are provided for documents.</p></div></section>
+<section class="section"><div class="wrap grid c2">${list(files, ([f, label, bg, png]) => `<figure class="panel"><div class="brand-swatch" style="background:${bg}"><img src="/brand/${f}.svg" alt="${attr(label)}" loading="lazy"></div>
+  <figcaption><strong>${esc(label)}</strong><br><a href="/brand/${f}.svg" download>SVG</a>${png ? ` · <a href="/brand/${f}.png" download>PNG</a>` : ''}</figcaption></figure>`)}
+  <figure class="panel"><div class="brand-swatch"><img src="/brand/favicon.svg" alt="Favicon" width="64" height="64"> <img src="/brand/apple-touch-icon.png" alt="App icon" width="64" height="64"></div><figcaption><strong>Favicon, app icon &amp; social card</strong><br><a href="/brand/favicon.svg" download>favicon.svg</a> · <a href="/favicon.ico" download>favicon.ico</a> · <a href="/brand/icon-512.png" download>icon-512.png</a> · <a href="/brand/og-image.png" download>og-image.png</a></figcaption></figure>
+  <div class="panel"><h2>Colors</h2><ul class="ticks"><li>Logo bronze #795C38 · light bronze #C99A69 on dark</li><li>Logo charcoal #202428</li><li>Warm ivory #F6F2EA</li></ul>
+  <h2 class="mt-2">Clear space &amp; sizes</h2><p class="small">Keep clear space at least the height of the NATION letters around the logo. Keep the full logo at least 220 px / 60 mm wide so DESIGN &amp; CONSTRUCTION stays readable; below that, use the symbol alone. Never stretch, recolor outside these versions, or redraw the lettering.</p></div>
 </div></section>`;
   return layout({ title: 'Brand assets', description: 'Nation Design & Construction logo files and brand colors.', path: '/brand/', body, noindex: true });
 }
