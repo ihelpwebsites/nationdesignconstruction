@@ -48,7 +48,8 @@ Render issues and renews the TLS certificates. `www` → apex 301 (Render edge);
 - Google Search Console: Domain property `nationdesignconstruction.com` verified 2026-10-24 by DNS TXT
   (`google-site-verification=…` at GoDaddy — **do not delete**). Sitemap submitted: Success, 106 URLs discovered.
 - IndexNow (Bing and partners): key file `public/<key>.txt`; `node --use-system-ca tools/indexnow.mjs` after content
-  changes (2026-10-24: 202 Accepted, 106 URLs). Bing Webmaster Tools itself needs the owner's sign-in.
+  changes (2026-10-24: 202 Accepted, 106 URLs). Bing Webmaster Tools: site imported from Search Console 2026-10-24 (Google sign-in, Administrator), sitemap.xml
+  submitted (Processing).
 
 ## Audit pass verification (2026-10-24, live)
 - 106 pages crawled, 148 assets: no broken links/assets. All 106 sitemap URLs indexable (meta `index`, no X-Robots

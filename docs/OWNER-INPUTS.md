@@ -8,7 +8,7 @@ Most facts are entered in **admin → Business details** and only appear once yo
 |---|---|---|
 | **Mailbox hello@nationdesignconstruction.com** | ✅ Created by the owner (Google Workspace MX + SPF present). Published sitewide. | Nothing — but confirm the first notification arrives (see next row). |
 | **Notification sending** | ⛔ Only the secret is missing. Resend domain `notify.nationdesignconstruction.com` is **verified** (DKIM + send/rsend records at GoDaddy, 2026-10-24); sender, recipient (hello@) and Reply-To are built in. | Resend → API Keys → Create API key → permission **Sending access**, domain **notify.nationdesignconstruction.com** → copy it. Render → nationdc → Environment → Add `RESEND_API_KEY` = (the key) → Save, rebuild and deploy. Queued notifications from the last 3 days then send automatically to hello@ — check that inbox (and spam) for "[TEST] New inquiry NDC-…". |
-| **Bing Webmaster Tools** | ⛔ Needs your Microsoft or Google sign-in in a browser. (IndexNow already notified Bing of all 106 URLs.) | Sign in at bing.com/webmasters → "Import from Google Search Console". |
+| **Bing Webmaster Tools** | ✅ Imported from Search Console 2026-10-24 (Google sign-in ahmed@nationvanrentals.com, view-only GSC access); sitemap submitted, processing. | Nothing — check bing.com/webmasters in a few days for discovered URLs. |
 
 ## ⚠ Contracting qualification (legal — confirm first)
 Licensed subcontractors do not qualify Nation itself to contract for construction. In Florida, offering or advertising
