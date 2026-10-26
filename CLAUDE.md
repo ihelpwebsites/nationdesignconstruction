@@ -14,8 +14,8 @@ Owner facts still needed: `docs/OWNER-INPUTS.md`. Deployment & DNS: `docs/DEPLOY
 3. **Pricing**: no dollar figures unless the owner publishes a complete, reviewed entry in admin → Services
    (`publicPrice()` in `src/server/services.mjs`). Assessment-based wording for engineering/sinkhole/unknown conditions.
    Project minimums are per service (admin), never a universal threshold.
-4. **Photos**: `src/data/images.mjs` = licensed Unsplash stock, always captioned "Representative photo, not our
-   project". Concepts are always labeled "Design concept". Owner project photos only via admin with rights confirmation.
+4. **Photos**: `src/data/images.mjs` = licensed Unsplash stock, captioned with the photographer credit only
+   (owner removed the "not our project" label 2026-10-26; never caption stock as Nation's work). Concepts are always labeled "Design concept". Owner project photos only via admin with rights confirmation.
 5. **Indexing**: production indexes complete pages; services default to `preview` (reachable, noindex, not in
    sitemap) until the owner publishes them. Dev is always noindex. Never ship production globally noindexed.
 6. **Private data**: uploads in `$DATA_DIR/private` (never under `public/`), downloadable only by signed-in staff.

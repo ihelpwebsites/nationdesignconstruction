@@ -35,4 +35,4 @@ until it is. Once qualified, add the exact license number(s) in admin → Busine
 ## Content to sanity-check
 - Service pages state that licensed trades and design professionals perform regulated work and that Nation coordinates, supervises and checks it. Confirm this matches how you will contract.
 - Commitments written as process (not guarantees): written change pricing before work proceeds; scheduled updates; coverage confirmed before site visits.
-- The drafting photo is the Unsplash original with the NATION logo added (supplied by you); it stays labeled "Representative photo… (edited)" and credits the photographer.
+- The drafting photo is the Unsplash original with the NATION logo added (supplied by you); it credits the photographer, marked "(edited)". The "Representative photo, not our project" label was removed sitewide at your request (2026-10-26).

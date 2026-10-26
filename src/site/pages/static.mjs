@@ -300,7 +300,7 @@ export function privacyPage() {
   <h2>Retention and your choices</h2>
   <p>We keep inquiries and applications for as long as needed to respond and for our business records, and delete them on request where we’re not required to keep them. To ask for a copy, a correction or deletion, call ${esc(f.phone)}${f.email ? ` or email <a href="mailto:${attr(f.email)}">${esc(f.email)}</a>` : ''}, or mention it in a new inquiry.</p>
   <h2>Photography</h2>
-  <p>Photographs labeled “representative” are licensed stock images and do not show our completed work. Items labeled “design concept” are concepts, not completed projects.</p>
+  <p>Photographs credited to Unsplash are licensed stock images. Items labeled “design concept” are concepts, not completed projects.</p>
   <p class="small muted">Last updated ${fmtDate(PAGE_DATES['/privacy/'])}.</p>
 </div></section>`;
   return layout({ title: 'Privacy Notice', description: 'How Nation Design & Construction handles information submitted through this website.', path: '/privacy/', body, jsonld: [c.ld] });

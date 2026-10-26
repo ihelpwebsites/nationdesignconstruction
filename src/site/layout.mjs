@@ -33,7 +33,7 @@ export function pic(key, { sizes = '(min-width: 1000px) 50vw, 100vw', eager = fa
 export function credit(key) {
   const img = IMAGES[key];
   if (!img) return '';
-  return `Representative photo, not our project · <a href="${attr(img.page)}" rel="nofollow noopener" target="_blank">${esc(img.credit)} / Unsplash</a>${img.edited ? ' (edited)' : ''}`;
+  return `Photo: <a href="${attr(img.page)}" rel="nofollow noopener" target="_blank">${esc(img.credit)} / Unsplash</a>${img.edited ? ' (edited)' : ''}`;
 }
 
 /** Click-to-call link for the confirmed number. */
@@ -161,7 +161,6 @@ function footer() {
     </div>
     <div class="foot-bottom">
       <span>© ${year} ${esc(BUSINESS.name)}${f.license ? ` · License ${esc(f.license)}` : ''}</span>
-      <span>Photography marked “representative” is licensed stock imagery, not our completed work.</span>
     </div>
   </div>
 </footer>`;
