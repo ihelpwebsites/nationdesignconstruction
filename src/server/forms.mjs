@@ -204,7 +204,11 @@ export async function handleTradeApplication(req) {
   }
   audit('public', 'trade.create', 'trade', id);
   track('trade_application_submitted');
-  notify('trade', `Trade partner application ${ref}: ${company}`, `${company} (${contact}, ${email}, ${phone})\nTrades: ${trades.join(', ')}${otherTrade ? `, ${otherTrade}` : ''}\nCounties: ${counties.join(', ')}\n\nReview: ${SITE_URL}/admin/trades/${id}`, { replyTo: email }).catch(() => {});
+  const tradeText = [`Trade partner application ${ref}`, '', `${company}`, `${contact} · ${email} · ${phone}`,
+    `Trades: ${trades.join(', ')}${otherTrade ? `, Other: ${otherTrade}` : ''}`, `Counties: ${counties.join(', ')}`, `License: ${license || '—'}`,
+    `General liability: ${gl || '—'} · Workers' comp: ${wc || '—'}`, `Typical project size: ${size || '—'} · Crew capacity: ${crew || '—'}`,
+    `Availability: ${availability || '—'}`, '', `Examples / references:`, examples || '—', '', `Review in admin: ${SITE_URL}/admin/trades/${id}`].join('\n');
+  notify('trade', `${test ? '[TEST] ' : ''}Trade partner application ${ref}: ${company}`, tradeText, { replyTo: email }).catch(() => {});
   if (!test) confirm(email, `We received your application (${ref}) — Nation Design & Construction`, [
     `Hello ${contact},`, '',
     `Thank you for applying to work with Nation Design & Construction. Your reference is ${ref}.`, '',
