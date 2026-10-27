@@ -5,7 +5,7 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { HttpError, readForm, rateLimit, clientIp, sniff, checkOrigin, EXT } from './http.mjs';
-import { run, get, now, newId, makeRef, sha256, tx, audit, PRIVATE_DIR } from './db.mjs';
+import { run, get, all, now, newId, makeRef, sha256, tx, audit, getSetting, setSetting, PRIVATE_DIR } from './db.mjs';
 import { service, listed } from './services.mjs';
 import { notify, confirm } from './email.mjs';
 import { CONFIRMED } from '../data/business.mjs';
@@ -84,6 +84,20 @@ export const newSubmissionKey = () => crypto.randomBytes(18).toString('base64url
 const idemOf = (fields) => { const k = String(one(fields._idem) || ''); return /^[\w-]{16,64}$/.test(k) ? sha256('idem:' + k) : null; };
 // Controlled tests are marked so they never mix with genuine leads.
 const isTestSubmission = (name, email) => /^website test\b/i.test(name) || /@example\.(com|test|org)$/i.test(email);
+
+// 2026-10-27: records saved before the is_test flag existed are flagged by the same rule, and their queued
+// notifications are labeled [TEST] so a backlog replay leaves them out. Runs once; never touches other records.
+if (!getSetting('migration.flagTests.2026-10-27')) {
+  let n = 0;
+  for (const [table, nameCol] of [['inquiries', 'name'], ['trade_applications', 'contact_name']]) {
+    for (const r of all(`SELECT id, ref, ${nameCol} AS name, email FROM ${table} WHERE is_test = 0`)) {
+      if (!isTestSubmission(r.name, r.email)) continue;
+      run(`UPDATE ${table} SET is_test = 1 WHERE id = ?`, r.id); n++;
+      run("UPDATE outbox SET subject = '[TEST] ' || subject WHERE subject LIKE ? AND subject NOT LIKE '[TEST]%' AND status != 'sent'", `%${r.ref}%`);
+    }
+  }
+  setSetting('migration.flagTests.2026-10-27', { flagged: n, at: now() });
+}
 
 async function common(req, bucket, max) {
   checkOrigin(req);
