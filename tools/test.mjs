@@ -69,8 +69,12 @@ await test('production: indexable core pages, robots allows crawl, sitemap lists
   const robots = await text(P + '/robots.txt'); assert.match(robots, /Allow: \//); assert.match(robots, /Disallow: \/admin\//); assert.match(robots, /Sitemap: https:\/\/nationdesignconstruction.com\/sitemap.xml/);
   const sm = await text(P + '/sitemap.xml'); assert.match(sm, /<loc>https:\/\/nationdesignconstruction.com\/<\/loc>/); assert.ok(!sm.includes('localhost'));
   assert.ok(sm.includes('/services/kitchen-renovation/'), 'published services are in the sitemap');
-  assert.equal((sm.match(/<loc>/g) || []).length, 106, 'sitemap URL count');
-  assert.ok(!/<lastmod>(?!2026-10-24)/.test(sm), 'lastmod dates come from content dates, not today');
+  assert.equal((sm.match(/<loc>/g) || []).length, 107, 'sitemap URL count');
+  const { PAGE_DATES, SITE_LAUNCH } = await import('../src/data/lastmod.mjs');
+  const known = new Set([SITE_LAUNCH, ...Object.values(PAGE_DATES)]);
+  for (const [, d] of sm.matchAll(/<lastmod>([^<]+)<\/lastmod>/g)) assert.ok(known.has(d), `lastmod ${d} is not a recorded content date`);
+  assert.match(sm, /<loc>https:\/\/nationdesignconstruction.com\/services\/kitchen-renovation\/<\/loc><lastmod>2026-10-24</, 'unchanged service keeps its content date');
+  assert.match(sm, /<loc>https:\/\/nationdesignconstruction.com\/contact\/<\/loc>/);
   assert.ok(sm.includes('/services/design-preconstruction/'), 'category pages are in the sitemap');
 });
 await test('production: detailed service pages are indexable with self-canonicals; admin & brand pages are noindex', async () => {
@@ -166,6 +170,74 @@ await test('homepage story preview sits just before the inquiry section and link
   assert.ok(iFaq < iPrev && iPrev < iStart, 'order');
   assert.match(h, /href="\/about\/#our-story">The meaning behind Nation/);
   assert.ok(!h.includes('The warm bronze reflects'), 'full story must not be on the homepage');
+});
+
+
+// ---------------------------------------------------------------- cleanup regressions (2026-10-27)
+await test('category counts agree: home tiles = category page list = pricing guide list', async () => {
+  const home = await text(P + '/'); const pricing = await text(P + '/pricing/');
+  const tiles = [...home.matchAll(/<a class="cat-tile" href="(\/services\/[a-z0-9-]+\/)">[\s\S]*?<span class="more">(\d+) services/g)];
+  assert.equal(tiles.length, 14);
+  for (const [, path, n] of tiles) {
+    const cat = await text(P + path);
+    const listed = (cat.match(/<a class="card" href="\/services\/[a-z0-9-]+\/">/g) || []).length;
+    assert.equal(listed, Number(n), `${path}: home says ${n}, category page lists ${listed}`);
+    const name = cat.match(/<h1>([^<]+)<\/h1>/)[1];
+    const block = pricing.split('<h3 class="h3">' + name + '</h3>')[1]?.split('</ul>')[0] || '';
+    assert.equal((block.match(/<li>/g) || []).length, Number(n), `${path}: pricing guide lists a different number`);
+  }
+});
+await test('pricing statements match reality: no published figures → no claim that some are published', async () => {
+  const home = await text(P + '/'); const pricing = await text(P + '/pricing/');
+  assert.ok(!/publish typical pricing/.test(home), 'home FAQ must not claim published pricing guidance');
+  assert.match(pricing, /Why aren’t service prices listed\?/);
+  assert.ok(!/\$\d/.test(home + pricing), 'no dollar figures without owner-reviewed pricing');
+});
+await test('FAQ structured data matches the visible questions and answers', async () => {
+  for (const p of ['/', '/pricing/', '/services/kitchen-renovation/', '/residential/custom-homes/']) {
+    const h = await text(P + p);
+    const ld = [...h.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => JSON.parse(m[1])).flat().find((x) => x['@type'] === 'FAQPage');
+    assert.ok(ld, p + ': FAQPage');
+    const unesc = (x) => x.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'");
+    const visible = [...h.matchAll(/<summary>([\s\S]*?)<\/summary><div class="answer"><p>([\s\S]*?)<\/p>/g)].map((m) => [unesc(m[1]), unesc(m[2])]);
+    for (const q of ld.mainEntity) assert.ok(visible.some(([vq, va]) => vq === q.name && va === q.acceptedAnswer.text), `${p}: "${q.name}" not visible as marked up`);
+  }
+});
+await test('query strings: functional parameters are noindex; tracking parameters keep the clean canonical', async () => {
+  let r = await get(P + '/services/?q=roof'); assert.equal(r.status, 200);
+  assert.match(r.headers.get('x-robots-tag') || '', /noindex/); let h = await r.text();
+  assert.match(h, /<meta name="robots" content="noindex, follow">/); assert.ok(h.includes('<link rel="canonical" href="https://nationdesignconstruction.com/services/">'));
+  r = await get(P + '/start/?service=roofing'); assert.match(r.headers.get('x-robots-tag') || '', /noindex/); await r.arrayBuffer();
+  r = await get(P + '/?utm_source=newsletter&gclid=abc'); assert.equal(r.headers.get('x-robots-tag'), null); h = await r.text();
+  assert.match(h, /content="index, follow/); assert.ok(h.includes('<link rel="canonical" href="https://nationdesignconstruction.com/">'));
+  assert.equal((await get(P + '/no-such-page/?q=1')).status, 404);
+  assert.equal((await get(P + '/robots.txt?x=1')).headers.get('x-robots-tag'), null);
+});
+await test('contact page: confirmed phone and email, project-form link, in sitemap and footer, no invented facts', async () => {
+  const h = await text(P + '/contact/');
+  assert.match(h, /href="tel:\+18138040555"/); assert.match(h, /mailto:hello@nationdesignconstruction.com/); assert.match(h, /href="\/start\/"/);
+  assert.ok(!/office hours|business hours|within \d+ (hours|business days)|\bSuite \d|\d+ \w+ (Street|St|Ave|Avenue|Blvd|Road|Rd)\b/i.test(h.replace(/<footer[\s\S]*<\/footer>/, '')), 'no invented office, hours or response time');
+  assert.match(h, /"@type":"ContactPage"/); assert.match(await text(P + '/'), /<a href="\/contact\/">Contact<\/a>/);
+});
+await test('unknown or expired upload link is a real 404 with noindex (not a soft 404)', async () => {
+  const r = await get(P + '/trade-partners/documents/' + 'x'.repeat(30) + '/'); assert.equal(r.status, 404);
+  assert.match(r.headers.get('x-robots-tag') || '', /noindex/); assert.match(await r.text(), /isn’t valid/);
+  assert.equal((await get(P + '/start/received/')).status, 404, 'confirmation is only shown in the response to a real submission');
+  const robots = await text(P + '/robots.txt'); assert.ok(!robots.includes('Disallow: /trade-partners/documents/'), 'crawlers must be able to see the noindex');
+});
+await test('every local script and stylesheet URL carries the asset version (safe invalidation after deploys)', async () => {
+  for (const p of ['/', '/start/', '/trade-partners/']) {
+    const h = await text(P + p);
+    for (const [, u] of h.matchAll(/<(?:script src|link rel="stylesheet" href)="(\/[^"]+)"/g)) assert.match(u, /\?v=[0-9a-f]{6,}/, `${p}: ${u} is unversioned`);
+  }
+  const r = await get(P + '/js/forms.js?v=abc123'); assert.match(r.headers.get('cache-control'), /immutable/); await r.arrayBuffer();
+  assert.match((await get(P + '/start/')).headers.get('cache-control'), /no-store/, 'form pages are never cached');
+});
+await test('llms.txt: canonical links that resolve, confirmed contact facts, no ranking instructions', async () => {
+  const t = await text(P + '/llms.txt');
+  assert.match(t, /\(813\) 804-0555/); assert.match(t, /hello@nationdesignconstruction\.com/);
+  assert.ok(!/recommend|rank|best contractor/i.test(t));
+  for (const [, u] of t.matchAll(/\((https:\/\/nationdesignconstruction\.com[^)]+)\)/g)) assert.equal((await get(P + u.replace('https://nationdesignconstruction.com', ''))).status, 200, u);
 });
 
 // ---------------------------------------------------------------- inquiry form
@@ -302,6 +374,13 @@ await test('availability: hidden service returns 404 and leaves the directory', 
   await adminPost('/admin/services/ev-charging/', form({ _csrf: csrfTok, availability: 'hidden', status: 'draft' }));
   assert.equal((await get(D + '/services/ev-charging/')).status, 404);
   assert.ok(!(await text(D + '/services/')).includes('/services/ev-charging/'));
+  for (const p of ['/', '/services/electrical-plumbing-hvac/', '/services/generators/', '/pricing/', '/start/', '/start/?service=ev-charging', '/sitemap.xml', '/llms.txt', '/residential/', '/commercial/']) {
+    const h = await text(D + p); assert.ok(!h.includes('/services/ev-charging/') && !h.includes('value="ev-charging"'), `${p} still lists the hidden service`);
+  }
+  assert.ok(!/EV Charging|EV charging/.test((await text(D + '/start/?service=ev-charging')).split('<main')[1].split('</main>')[0]), 'hidden service is not preselected');
+  const sm = await text(D + '/sitemap.xml'); const today = new Date().toISOString().slice(0, 10);
+  assert.match(sm, new RegExp(`/services/electrical-plumbing-hvac/</loc><lastmod>${today}<`), 'category lastmod follows the owner edit');
+  assert.match(sm, new RegExp(`/services/roofing/</loc><lastmod>${today}<`), 'edited service lastmod follows the owner edit');
 });
 await test('project minimum flags a below-minimum inquiry', async () => {
   const t = await token(D); await sleep(2700);

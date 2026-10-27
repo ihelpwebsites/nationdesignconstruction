@@ -366,6 +366,7 @@ fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
 fieldset > legend { margin-bottom: 10px; padding: 0; }
 .choices { display: grid; gap: 8px; }
 .choices.c2 { grid-template-columns: 1fr 1fr; }
+@media (max-width: 359px) { .choices.c2 { grid-template-columns: 1fr; } } /* reflow on very narrow / zoomed screens */
 @media (min-width: 640px) { .choices.c3 { grid-template-columns: repeat(3, 1fr); } }
 .choice { position: relative; display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px; min-height: 52px; border: 1px solid var(--stone-2); background: #fff; border-radius: var(--radius); cursor: pointer; font-size: .96rem; line-height: 1.35; }
 .choice input { margin: 2px 0 0; width: 18px; height: 18px; accent-color: var(--charcoal); flex-shrink: 0; }
@@ -497,3 +498,5 @@ button.textlink { background: none; border: 0; border-bottom: 1px solid currentC
 .facts dd { margin: 0; }
 picture { display: contents; }
 .card-body h2.card-title { font: 400 1.6rem/1.15 var(--serif); }
+.contact-big{font-size:1.35rem;font-family:var(--serif, inherit)}
+.contact-big a{overflow-wrap:anywhere}

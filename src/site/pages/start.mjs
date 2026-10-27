@@ -2,7 +2,7 @@
 // with JavaScript it becomes a stepper with inline validation and fetch submission.
 import { esc, attr, icon, list, money } from '../html.mjs';
 import { layout, crumbs, contactPanel } from '../layout.mjs';
-import { services, service } from '../../server/services.mjs';
+import { services, service, listed } from '../../server/services.mjs';
 import { BUDGETS, TIMINGS, PLAN_ITEMS, TURNSTILE, UPLOAD } from '../../config.mjs';
 import { formToken, newSubmissionKey } from '../../server/forms.mjs';
 
@@ -40,7 +40,7 @@ export function startPage(query = {}) {
   const pre = {
     market: ['residential', 'commercial'].includes(query.market) ? query.market : '',
     readiness: ['design', 'plans', 'unsure'].includes(query.readiness) ? query.readiness : '',
-    service: service(query.service || '') ? query.service : '',
+    service: listed(service(String(query.service || ''))) ? query.service : '',
     type: String(query.type || ''),
   };
   const sel = pre.service ? service(pre.service) : null;
@@ -179,7 +179,7 @@ export function startPage(query = {}) {
 </div></section>`;
   return layout({
     title: 'Discuss Your Project', description: 'Tell Nation Design & Construction about your residential or commercial project in three short steps. Attach plans or photos if you have them.',
-    path: '/start/', body, jsonld: [c.ld], scripts: ['/js/forms.js' + '', ...(TURNSTILE.siteKey ? ['https://challenges.cloudflare.com/turnstile/v0/api.js'] : [])],
+    path: '/start/', body, jsonld: [c.ld], scripts: ['/js/forms.js', ...(TURNSTILE.siteKey ? ['https://challenges.cloudflare.com/turnstile/v0/api.js'] : [])],
   });
 }
 

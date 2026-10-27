@@ -107,6 +107,7 @@ function drawer(cats, current) {
         <li><a class="top" href="/process/">Our Process</a></li>
         <li><a class="top" href="/about/">About</a></li>
         <li><a class="top" href="/pricing/">Pricing Guide</a></li>
+        <li><a class="top" href="/contact/"${current === '/contact/' ? ' aria-current="page"' : ''}>Contact</a></li>
       </ul>
     </nav>
     <div class="cta"><a class="btn" href="/start/">Discuss Your Project ${icon('arrow')}</a>
@@ -155,7 +156,7 @@ function footer() {
         <li><a href="/start/">Discuss your project</a></li></ul></div>
       <div><h2>Company</h2><ul>
         <li><a href="/process/">Our process</a></li><li><a href="/about/">About</a></li>
-        <li><a href="/design-inspiration/">Design inspiration</a></li><li><a href="/privacy/">Privacy</a></li></ul></div>
+        <li><a href="/design-inspiration/">Design inspiration</a></li><li><a href="/contact/">Contact</a></li><li><a href="/privacy/">Privacy</a></li></ul></div>
       <div><h2>Trade partners</h2><ul>
         <li><a href="/trade-partners/">Get prequalified</a></li></ul></div>
     </div>
@@ -223,7 +224,7 @@ ${page.body}
 </main>
 ${footer()}
 <script src="/js/site.js?v=${ASSET_VERSION}" defer></script>
-${(page.scripts || []).map((s) => `<script src="${attr(s)}" defer></script>`).join('\n')}
+${(page.scripts || []).map((s) => `<script src="${attr(s.startsWith('/') ? `${s}?v=${ASSET_VERSION}` : s)}" defer></script>`).join('\n')}
 </body>
 </html>`;
 }

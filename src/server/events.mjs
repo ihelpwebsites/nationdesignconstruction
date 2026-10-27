@@ -12,8 +12,9 @@ export function track(name, label = '') {
 }
 
 // Browser-reported events: only these names, labels restricted to safe identifiers (page paths, field names).
-export const CLIENT_EVENTS = new Set(['phone_click', 'email_click', 'form_error', 'inquiry_step']);
-export const safeLabel = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9/_-]/g, '').slice(0, 60);
+// landing = first page of a visit (path); referral = the referring site's host name only (never the full URL).
+export const CLIENT_EVENTS = new Set(['phone_click', 'email_click', 'form_error', 'inquiry_step', 'inquiry_start', 'upload_error', 'submit_failed', 'landing', 'referral']);
+export const safeLabel = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9/._-]/g, '').slice(0, 60);
 
 export const CRAWLERS = [
   ['Googlebot', /Googlebot/i], ['Bingbot', /bingbot/i], ['OAI-SearchBot', /OAI-SearchBot/i], ['ChatGPT-User', /ChatGPT-User/i],

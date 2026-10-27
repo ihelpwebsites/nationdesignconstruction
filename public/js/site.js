@@ -86,6 +86,17 @@
     try { navigator.sendBeacon('/api/event', JSON.stringify({ e: `${a.dataset.track}_click`, l: location.pathname })); } catch { /* optional */ }
   });
 
+  // ---- Landing page and referring site, once per visit (path and host name only; no cookies) ----
+  try {
+    if (!sessionStorage.getItem('ndc-visit')) {
+      sessionStorage.setItem('ndc-visit', '1');
+      const send = (e, l) => navigator.sendBeacon('/api/event', JSON.stringify({ e, l }));
+      send('landing', location.pathname);
+      const ref = document.referrer ? new URL(document.referrer).hostname.replace(/^www\./, '') : '';
+      if (ref && ref !== location.hostname.replace(/^www\./, '')) send('referral', ref);
+    }
+  } catch { /* storage blocked or beacons unavailable: skip */ }
+
   // ---- Subtle reveal on scroll (skipped for reduced motion) ----
   const els = $$('.reveal');
   if (els.length && 'IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches) {

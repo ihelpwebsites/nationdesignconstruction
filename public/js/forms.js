@@ -1,6 +1,8 @@
 // Forms: three-step inquiry stepper with inline validation and conditional questions, plus simple forms
 // (trade application, document upload). Submits with fetch and shows success ONLY on a confirmed 200 response.
 (() => {
+  // Aggregate measurement only: event names, field names and reason codes — never values or file names.
+  const beacon = (e, l) => { try { navigator.sendBeacon('/api/event', JSON.stringify({ e, l })); } catch { /* optional */ } };
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
   const fmt = (n) => '$' + Number(n).toLocaleString('en-US');
@@ -9,7 +11,12 @@
   function setError(form, name, msg) {
     const el = form.querySelector(`#err-${name}`);
     if (el) el.textContent = msg || '';
-    form.querySelectorAll(`[name="${name}"]`).forEach((i) => { if (msg) i.setAttribute('aria-invalid', 'true'); else i.removeAttribute('aria-invalid'); });
+    // Every control in the group points at its error text, so screen readers announce it when the control gets
+    // focus (radio groups and some selects aren't linked in the markup).
+    form.querySelectorAll(`[name="${name}"]`).forEach((i) => {
+      if (el) { const ids = (i.getAttribute('aria-describedby') || '').split(' ').filter(Boolean); if (!ids.includes(el.id)) i.setAttribute('aria-describedby', [...ids, el.id].join(' ')); }
+      if (msg) i.setAttribute('aria-invalid', 'true'); else i.removeAttribute('aria-invalid');
+    });
   }
   function validateField(form, input) {
     const name = input.name;
@@ -35,10 +42,11 @@
     const files = [...input.files];
     const list = input.parentElement.querySelector('[data-file-list]');
     if (list) list.innerHTML = files.map((f) => `<li>${f.name.replace(/[<&]/g, '')} — ${(f.size / 1e6).toFixed(1)} MB</li>`).join('');
-    if (files.length > 6) return 'Please attach no more than 6 files.';
-    const big = files.find((f) => f.size > 10e6); if (big) return `“${big.name}” is larger than 10 MB.`;
-    if (files.reduce((a, f) => a + f.size, 0) > 30e6) return 'Attachments total more than 30 MB.';
-    const bad = files.find((f) => !/\.(pdf|jpe?g|png|webp|heic)$/i.test(f.name)); if (bad) return `“${bad.name}” isn’t a supported file type.`;
+    const fail = (code, msg) => { beacon('upload_error', `${input.form?.id || 'form'}/${code}`); return msg; };
+    if (files.length > 6) return fail('count', 'Please attach no more than 6 files.');
+    const big = files.find((f) => f.size > 10e6); if (big) return fail('size', `“${big.name}” is larger than 10 MB.`);
+    if (files.reduce((a, f) => a + f.size, 0) > 30e6) return fail('total', 'Attachments total more than 30 MB.');
+    const bad = files.find((f) => !/\.(pdf|jpe?g|png|webp|heic)$/i.test(f.name)); if (bad) return fail('type', `“${bad.name}” isn’t a supported file type.`);
     if (input.required && !files.length) return 'Choose at least one file.';
     return '';
   }
@@ -53,8 +61,6 @@
     return !firstBad;
   }
 
-  // Aggregate measurement only: event names and field names — never values.
-  const beacon = (e, l) => { try { navigator.sendBeacon('/api/event', JSON.stringify({ e, l })); } catch { /* optional */ } };
 
   async function submit(form, { onOk }) {
     if (form._busy) return; // ignore double clicks / repeated Enter while a request is in flight
@@ -79,6 +85,7 @@
       }
       onOk(data);
     } catch (e) {
+      beacon('submit_failed', `${form.id || 'form'}/${e.server ? 'rejected' : 'network'}`);
       errBox.textContent = e.server ? e.message
         : 'We couldn’t confirm that your details arrived — the connection dropped or timed out. Everything you entered is still here. Please press send again; if the first attempt did arrive, this won’t create a duplicate.';
       errBox.hidden = false; errBox.scrollIntoView({ block: 'center', behavior: 'smooth' }); errBox.focus?.();
@@ -103,6 +110,8 @@
       if (focus) { const h = $('h2', steps[n - 1]); h.tabIndex = -1; h.focus(); }
     };
     form._goTo = goTo;
+    const started = () => { beacon('inquiry_start', location.pathname); form.removeEventListener('input', started); form.removeEventListener('change', started); };
+    form.addEventListener('input', started); form.addEventListener('change', started);
     next.addEventListener('click', () => {
       if (validateScope(form, steps[cur - 1])) { goTo(cur + 1); beacon('inquiry_step', `step-${cur}`); }
       else beacon('form_error', `inquiry/step-${cur}`);

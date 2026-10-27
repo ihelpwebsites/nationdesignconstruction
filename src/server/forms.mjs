@@ -6,7 +6,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { HttpError, readForm, rateLimit, clientIp, sniff, checkOrigin, EXT } from './http.mjs';
 import { run, get, now, newId, makeRef, sha256, tx, audit, PRIVATE_DIR } from './db.mjs';
-import { service } from './services.mjs';
+import { service, listed } from './services.mjs';
 import { notify, confirm } from './email.mjs';
 import { CONFIRMED } from '../data/business.mjs';
 import { track } from './events.mjs';
@@ -107,7 +107,7 @@ export async function handleInquiry(req) {
   const projectType = clean(fields.project_type, 80);
   if (!PROJECT_TYPES[market]?.includes(projectType) && !Object.values(PROJECT_TYPES).flat().includes(projectType)) e.project_type = 'Choose the type of project.';
   const svcSlug = clean(fields.service, 80);
-  const svc = svcSlug ? service(svcSlug) : null;
+  const svc = svcSlug && listed(service(svcSlug)) ? service(svcSlug) : null;
   const location = clean(fields.location, 120);
   if (location.length < 2) e.location = 'Tell us where the project is (city and ZIP, or county).';
   const readiness = one(fields.readiness);

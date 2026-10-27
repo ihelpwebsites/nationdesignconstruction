@@ -6,6 +6,7 @@
 //    customer's address. Every message is queued in `outbox`; failures retry with backoff and show on the dashboard.
 import { run, all, now, newId, getSetting } from './db.mjs';
 import { EMAIL } from '../config.mjs';
+import { track } from './events.mjs';
 
 const MAX_ATTEMPTS = 6;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i;
@@ -47,7 +48,8 @@ async function attempt(msg) {
   } catch (e) {
     const next = attempts >= MAX_ATTEMPTS ? null : new Date(Date.now() + 2 ** attempts * 60e3).toISOString();
     run('UPDATE outbox SET status = ?, attempts = ?, next_attempt_at = ?, detail = ? WHERE id = ?', next ? 'retrying' : 'failed', attempts, next, String(e.message).slice(0, 300), msg.id);
-    console.error('email failed', msg.id, msg.kind, String(e.message).slice(0, 120)); // no addresses or content in logs
+    if (!next) track('email_failed', msg.kind);
+    console.error('email failed', msg.id, msg.kind, String(e.message).split(':')[0].slice(0, 40)); // status only: provider text can echo addresses
     return false;
   }
 }
@@ -90,4 +92,28 @@ export async function retryOutbox() {
     if (await attempt(m)) sent++;
   }
   return sent;
+}
+
+// ---- Backlog (admin) -------------------------------------------------------------------------------------
+// Everything never delivered, at any age. Staff notifications are internal, so replaying an old one is safe once a
+// person has looked at the list; customer confirmations are never sent late (they're listed so staff can reply
+// personally instead). Notifications about test records are left out of a replay unless staff include them.
+const UNSENT = "status IN ('pending','not_configured','retrying','failed')";
+export const isTestMessage = (m) => /^\[TEST\]/.test(m.subject || '');
+export function backlog() {
+  return {
+    counts: Object.fromEntries(all('SELECT status, COUNT(*) n FROM outbox GROUP BY status').map((r) => [r.status, r.n])),
+    staff: all(`SELECT * FROM outbox WHERE kind != 'confirmation' AND ${UNSENT} ORDER BY created_at`),
+    confirmations: all(`SELECT * FROM outbox WHERE kind = 'confirmation' AND (${UNSENT} OR status = 'skipped') ORDER BY created_at DESC LIMIT 50`),
+  };
+}
+export async function replayBacklog({ includeTests = false } = {}) {
+  if (emailBlocker()) return { sent: 0, failed: 0, skipped: 0, blocked: emailBlocker() };
+  let sent = 0, failed = 0, skipped = 0;
+  for (const m of backlog().staff) {
+    if (!includeTests && isTestMessage(m)) { skipped++; continue; }
+    // A replay resets the attempt budget so a message that exhausted its retries during an outage can go out.
+    if (await attempt({ ...m, attempts: m.status === 'failed' ? 0 : m.attempts })) sent++; else failed++;
+  }
+  return { sent, failed, skipped };
 }

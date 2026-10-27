@@ -1,6 +1,6 @@
 // Market landing pages, process, about, pricing guide, design inspiration, trade partners, privacy, 404, brand.
 import { esc, attr, icon, list, UNIT_NAME, money, fmtDate } from '../html.mjs';
-import { layout, crumbs, pic, credit, ctaBand, faqBlock, phoneLink, contactPanel } from '../layout.mjs';
+import { layout, crumbs, pic, credit, ctaBand, faqBlock, phoneLink, emailLink, contactPanel } from '../layout.mjs';
 import { categories, overviews, services } from '../../server/services.mjs';
 import { PROCESS, PRINCIPLES, RESPONSIBILITIES } from '../../content/company.mjs';
 import { PAGE_DATES } from '../../data/lastmod.mjs';
@@ -69,7 +69,7 @@ export function marketPage(m) {
 </div></section>
 <section class="section"><div class="wrap">
   <div class="section-head split"><div><p class="eyebrow">Standalone projects</p><h2>Substantial single-scope work, done properly.</h2></div><p class="lede">Not every project is a whole building. These categories are the ones ${m} clients ask about most.</p></div>
-  <div class="cat-grid">${list(cats, (cat) => `<a class="cat-tile" href="${cat.path}"><h3>${esc(cat.name)}</h3><p>${esc(cat.blurb)}</p><span class="more">${cat.services.filter((s) => s.markets.includes(m)).length} services ${icon('arrow')}</span></a>`)}</div>
+  <div class="cat-grid">${list(cats.filter((cat) => cat.services.some((s) => s.markets.includes(m))), (cat) => `<a class="cat-tile" href="${cat.path}"><h3>${esc(cat.name)}</h3><p>${esc(cat.blurb)}</p><span class="more">${cat.services.filter((s) => s.markets.includes(m)).length} ${m} services ${icon('arrow')}</span></a>`)}</div>
 </div></section>
 <section class="section stone"><div class="wrap split top"><div><p class="eyebrow">Questions</p><h2>${m === 'residential' ? 'Homeowners often ask' : 'Business owners often ask'}</h2></div><div>${faq.html}</div></div></section>
 ${ctaBand()}`;
@@ -153,8 +153,9 @@ ${ctaBand({ title: 'Tell us what this place will mean to you.' })}`;
 export function pricingPage() {
   const c = crumbs([{ href: '/pricing/', label: 'Pricing Guide' }]);
   const cats = categories();
+  const anyPrice = cats.some((cat) => cat.services.some((s) => s.price));
   const faq = faqBlock([
-    { q: 'Why don’t you list prices for every service?', a: 'We only publish pricing guidance that has been checked against real projects in the areas we serve. Until then, each service page explains how the work is priced and what changes the cost, and you can request pricing for your project.' },
+    { q: anyPrice ? 'Why don’t you list prices for every service?' : 'Why aren’t service prices listed?', a: 'We publish figures for a service only after they have been checked against real projects in the areas we serve. Until then, each service page explains how the work is priced and what changes the cost, and you can request pricing for your project.' },
     { q: 'Can I add up service prices to estimate a whole project?', a: 'Please don’t. A complete-project budget already includes the individual trades it needs, along with shared costs like supervision, permits and cleanup. Adding separate service estimates together double-counts and misleads.' },
     { q: 'What is an allowance?', a: 'A budget amount for an item you haven’t selected yet — tile, fixtures, appliances. When you make the selection, the actual cost replaces the allowance and the difference is shown to you.' },
     { q: 'What is assessment-based pricing?', a: 'For engineering, foundation, sinkhole and other work where hidden conditions decide the scope, we price the investigation first. The repair is priced once the findings and the engineer’s design are in hand.' },
@@ -180,7 +181,7 @@ export function pricingPage() {
 </div></section>
 <section class="section stone"><div class="wrap">
   <div class="section-head"><p class="eyebrow">By service</p><h2>Pricing basis for each service</h2><p class="lede">Each link opens the pricing section of that service page.</p></div>
-  ${list(cats, (cat) => `<div class="dir-cat"><h3 class="h3">${esc(cat.name)}</h3><ul class="dir-list">${list(cat.services.filter((s) => s.category === cat.slug), (s) => `<li><a href="${s.path}#pricing"><strong>${esc(s.name)}</strong><span>${s.price ? `${s.price.basis === 'range' ? `${money(s.price.low)} – ${money(s.price.high)}` : `From ${money(s.price.low)}`} · ${UNIT_NAME[s.price.unit]} · reviewed ${fmtDate(s.price.reviewedOn)}` : s.unit === 'assessment' || s.delivery === 'assessment' ? 'Assessment-based pricing' : `${UNIT_NAME[s.unit]} basis · pricing on request`}</span></a></li>`)}</ul></div>`)}
+  ${list(cats, (cat) => `<div class="dir-cat"><h3 class="h3">${esc(cat.name)}</h3><ul class="dir-list">${list(cat.services, (s) => `<li><a href="${s.path}#pricing"><strong>${esc(s.name)}</strong><span>${s.price ? `${s.price.basis === 'range' ? `${money(s.price.low)} – ${money(s.price.high)}` : `From ${money(s.price.low)}`} · ${UNIT_NAME[s.price.unit]} · reviewed ${fmtDate(s.price.reviewedOn)}` : s.unit === 'assessment' || s.delivery === 'assessment' ? 'Assessment-based pricing' : `${UNIT_NAME[s.unit]} basis · pricing on request`}</span></a></li>`)}</ul></div>`)}
 </div></section>
 <section class="section"><div class="wrap split top"><div><p class="eyebrow">Questions</p><h2>Pricing questions</h2></div><div>${faq.html}</div></div></section>
 ${ctaBand()}`;
@@ -284,6 +285,37 @@ ${ok ? `<section class="section tight"><div class="wrap narrow"><div class="form
 }
 
 // ---- Privacy -----------------------------------------------------------------------------------------
+// ---- Contact ------------------------------------------------------------------------------------------
+// Confirmed contact facts only (src/data/business.mjs). No office, hours or response-time promises unless verified.
+export function contactPage() {
+  const c = crumbs([{ href: '/contact/', label: 'Contact' }]);
+  const f = facts();
+  const body = `
+<section class="page-hero"><div class="wrap">
+  ${c.html}<p class="eyebrow">Contact</p><h1>Contact Nation Design &amp; Construction</h1>
+  <p class="lede">Call, email, or send your project details through the project form — the form is the best way to share drawings, site plans and photos.</p>
+</div></section>
+<section class="section"><div class="wrap split top">
+  <div class="prose stack">
+    <h2>Phone</h2>
+    <p class="contact-big">${phoneLink('', f.phone)}</p>
+    ${f.email ? `<h2>Email</h2><p class="contact-big">${emailLink()}</p>` : ''}
+    ${f.address ? `<h2>Office</h2><p>${esc(f.address)}</p>` : ''}
+    ${f.hours ? `<h2>Hours</h2><p>${esc(f.hours)}</p>` : ''}
+    <h2>Where we work</h2>
+    <p>${f.serviceArea ? `We serve ${esc(f.serviceArea)}.` : 'We’re launching in Florida. Tell us where your project is and we’ll confirm, before any site visit, whether it’s an area we serve.'}</p>
+    <h2>What to include</h2>
+    <ul><li>Where the project is (city and ZIP, or county)</li><li>Residential or commercial, and the type of project</li><li>Whether you have drawings, engineering or a site plan yet</li><li>An approximate budget range and when you’d like to start</li></ul>
+  </div>
+  <div class="stack-lg">
+    <div class="panel"><h2>Send your project details</h2><p class="small muted">Three short steps. You can attach plans or photos, and you’ll get a reference number when it’s received.</p><a class="btn" href="/start/">Discuss your project ${icon('arrow')}</a></div>
+    <div class="panel"><h2>Trade partners</h2><p class="small muted">Subcontractors and suppliers: apply through the prequalification form rather than the project form.</p><a class="textlink" href="/trade-partners/">Get prequalified ${icon('arrow')}</a></div>
+  </div>
+</div></section>`;
+  return layout({ title: 'Contact Us', description: `Contact Nation Design & Construction: call ${f.phone}${f.email ? ` or email ${f.email}` : ''}, or send your project details, plans and photos through the project form.`, path: '/contact/', body,
+    jsonld: [c.ld, { '@context': 'https://schema.org', '@type': 'ContactPage', name: 'Contact Nation Design & Construction', url: 'https://nationdesignconstruction.com/contact/', about: { '@id': 'https://nationdesignconstruction.com/#org' } }] });
+}
+
 export function privacyPage() {
   const f = facts();
   const c = crumbs([{ href: '/privacy/', label: 'Privacy' }]);
@@ -292,7 +324,7 @@ export function privacyPage() {
   <h2>What we collect</h2>
   <p><strong>Project inquiries:</strong> the details you enter — project type, location, readiness, budget range, timing, name, email, phone, description — and any plans or photos you attach.</p>
   <p><strong>Trade-partner applications:</strong> company and contact details, trades, counties served, license information you provide, insurance status, project size, capacity and project examples; and, if we later request them, documents you upload through a private link.</p>
-  <p><strong>Technical data:</strong> to prevent abuse, we keep a one-way hashed form of the network address a form was sent from. Our hosting provider (Render) keeps standard server logs. This site uses no advertising or analytics cookies and no third-party tracking scripts. We count a few events in aggregate — for example how many inquiries were completed, how many times the phone link was tapped, which form steps produced errors, and how often search-engine crawlers visit — as daily totals that contain no names, contact details or form answers. A sign-in cookie is used only for our staff’s management area.${TURNSTILE.siteKey ? ' Forms are protected by Cloudflare Turnstile, which processes limited technical data to tell people from automated traffic.' : ''}</p>
+  <p><strong>Technical data:</strong> to prevent abuse, we keep a keyed, one-way hashed form of the network address a form was sent from. It can’t be turned back into the address, but it can link submissions sent from the same address, so we treat it as personal data. Our hosting provider (Render) keeps standard server logs (for example the time, page requested and browser type); our own log entries record errors and crawler visits, not form contents. This site uses no advertising or analytics cookies and no third-party tracking scripts. We count a few events in aggregate — for example how many inquiries were completed, how many times the phone link was tapped, which form steps or uploads produced errors, which page a visit started on, the name of the website that referred it (not the full link), and how often search-engine crawlers say they visited — as daily totals that contain no names, contact details, form answers or file names. To count a visit’s first page only once, the site keeps a small flag in your browser’s session storage, which is cleared when you close the tab. A sign-in cookie is used only for our staff’s management area.${TURNSTILE.siteKey ? ' Forms are protected by Cloudflare Turnstile, which processes limited technical data to tell people from automated traffic.' : ''}</p>
   <h2>How we use it</h2>
   <p>To respond to your inquiry or application and to discuss and deliver your project. Your project-contact permission covers that only. We send news or updates only if you separately opted in, and you can opt out at any time.</p>
   <h2>Who can see it</h2>

@@ -19,6 +19,7 @@ import { handleAdmin } from './admin.mjs';
 import { contentVersion } from './services.mjs';
 import { publishedPhoto } from './photos.mjs';
 import { receivedPage } from '../site/pages/start.mjs';
+import { ASSET_VERSION } from '../site/assets.mjs';
 
 const ROOT = path.resolve(import.meta.dirname, '..', '..');
 const PUBLIC = path.join(ROOT, 'public');
@@ -75,6 +76,7 @@ const GENERATED = new Set(['/robots.txt', '/llms.txt', '/sitemap.xml', '/site.we
 const cache = new Map();
 const query0 = (url) => Object.fromEntries(url.searchParams);
 const UNCACHED = new Set(['/start/', '/trade-partners/']);
+const TRACKING_PARAM = /^(utm_\w+|gclid|gbraid|wbraid|fbclid|msclkid|mc_cid|mc_eid|ref)$/i;
 
 function staticFile(req, res, pathname) {
   let clean;
@@ -134,13 +136,17 @@ const server = http.createServer(async (req, res) => {
         else throw new HttpError(404, 'Not found.');
       } catch (e) {
         if (!(e instanceof HttpError)) { console.error(e); e = new HttpError(500, 'Something went wrong on our side and your submission was not saved. Please try again.'); }
+        // Aggregate only: which form, the status, and whether the files were the problem — never field values.
+        const formName = url.pathname.split('/')[2] || 'api';
+        track('form_rejected', `${formName}/${e.status}`);
+        if (e.extra?.fields?.files || e.status === 413) track('upload_rejected', formName);
         if (wantsJson) return sendJson(res, e.status, { ok: false, error: e.message, fields: e.extra?.fields || null });
         const fields = e.extra?.fields ? `<ul>${Object.values(e.extra.fields).map((m) => `<li>${String(m).replace(/[<&]/g, '')}</li>`).join('')}</ul>` : '';
-        return sendBody(req, res, e.status, 'text/html; charset=utf-8', `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Not sent</title><link rel="stylesheet" href="/css/site.css"><main class="wrap section"><h1 class="h2">Your form was not sent.</h1><p class="lede mt-2">${e.message}</p>${fields}<p class="mt-3">Use your browser’s back button to return to the form — what you entered should still be there.</p><p class="mt-3"><a class="btn" href="${url.pathname === '/api/inquiry' ? '/start/' : '/trade-partners/'}">Open the form again</a></p></main>`);
+        return sendBody(req, res, e.status, 'text/html; charset=utf-8', `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Not sent</title><link rel="stylesheet" href="/css/site.css?v=${ASSET_VERSION}"><main class="wrap section"><h1 class="h2">Your form was not sent.</h1><p class="lede mt-2">${e.message}</p>${fields}<p class="mt-3">Use your browser’s back button to return to the form — what you entered should still be there.</p><p class="mt-3"><a class="btn" href="${url.pathname === '/api/inquiry' ? '/start/' : '/trade-partners/'}">Open the form again</a></p></main>`);
       }
       if (wantsJson) return sendJson(res, 200, result);
       if (url.pathname === '/api/inquiry') return sendBody(req, res, 200, 'text/html; charset=utf-8', receivedPage(result.ref), { 'cache-control': 'no-store' });
-      return sendBody(req, res, 200, 'text/html; charset=utf-8', `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Received</title><link rel="stylesheet" href="/css/site.css"><main class="wrap section"><h1 class="h2">Received — thank you.</h1>${result.ref ? `<p class="lede">Reference ${result.ref}.</p>` : ''}<p class="mt-3"><a class="btn" href="/">Back to home</a></p></main>`);
+      return sendBody(req, res, 200, 'text/html; charset=utf-8', `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Received</title><link rel="stylesheet" href="/css/site.css?v=${ASSET_VERSION}"><main class="wrap section"><h1 class="h2">Received — thank you.</h1>${result.ref ? `<p class="lede">Reference ${result.ref}.</p>` : ''}<p class="mt-3"><a class="btn" href="/">Back to home</a></p></main>`);
     }
     if (!['GET', 'HEAD'].includes(req.method)) { res.writeHead(405, { allow: 'GET, HEAD' }).end(); return; }
 
@@ -168,8 +174,16 @@ const server = http.createServer(async (req, res) => {
       if (cacheable && page.status === 200) { if (cache.size > 500) cache.clear(); cache.set(key, page); }
     }
     if (page.redirect) { res.writeHead(301, { location: page.redirect }).end(); return; }
-    if (page.noindex) res.setHeader('x-robots-tag', 'noindex, follow');
-    return sendBody(req, res, page.status, page.type || 'text/html; charset=utf-8', page.body, { 'cache-control': page.status === 200 && cacheable ? 'no-cache' : 'no-store' });
+    // Functional query strings (directory search, form presets like /start/?service=…) create variants of a page
+    // that shouldn't compete with it in search: noindex, follow. Tracking parameters (utm_*, gclid…) are left to
+    // the self-canonical, which always points at the clean URL.
+    let body = page.body;
+    const functional = !page.type && page.status === 200 && [...url.searchParams.keys()].some((k) => !TRACKING_PARAM.test(k));
+    if (page.noindex || functional) {
+      res.setHeader('x-robots-tag', 'noindex, follow');
+      if (functional) body = body.replace('<meta name="robots" content="index, follow, max-image-preview:large">', '<meta name="robots" content="noindex, follow">');
+    }
+    return sendBody(req, res, page.status, page.type || 'text/html; charset=utf-8', body, { 'cache-control': page.status === 200 && cacheable ? 'no-cache' : 'no-store' });
   } catch (err) {
     if (err?.status && err.status < 500) {
       if (err.status === 404) { const p = route('/__404__', {}); return sendBody(req, res, 404, 'text/html; charset=utf-8', p.body, { 'cache-control': 'no-store' }); }

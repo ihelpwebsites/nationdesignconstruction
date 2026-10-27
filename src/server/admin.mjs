@@ -7,7 +7,7 @@ import { get, all, run, now, newId, audit, tx, J, getSetting, setSetting, PRIVAT
 import { login, logout, currentStaff, checkCsrf, hashPassword, verifyPassword } from './auth.mjs';
 import { service, services, updateService, rawService, AVAILABILITY, invalidate, categories } from './services.mjs';
 import { createUploadLink, DOC_KINDS, storeFiles } from './forms.mjs';
-import { emailReady, notificationInbox, emailBlocker, retryOutbox } from './email.mjs';
+import { emailReady, notificationInbox, emailBlocker, retryOutbox, backlog, replayBacklog, isTestMessage } from './email.mjs';
 import { summary as eventSummary } from './events.mjs';
 import { CONFIRMED } from '../data/business.mjs';
 import { FACT_FIELDS } from '../data/business.mjs';
@@ -105,6 +105,7 @@ export async function handleAdmin(req, res, url) {
   if ((m = url.pathname.match(/^\/admin\/photos\/preview\/(ph_[\w-]+)$/))) return photoPreview(res, m[1]);
   if (p === '/admin/photos/') return req.method === 'POST' ? photoPost(req, res, staff) : photos(res, staff, url);
   if (p === '/admin/settings/') return req.method === 'POST' ? settingsSave(req, res, staff) : settings(res, staff, url);
+  if (p === '/admin/email/' && req.method === 'POST') return emailReplay(req, res, staff);
   throw new HttpError(404, 'Not found');
 }
 
@@ -124,13 +125,13 @@ function dashboard(res, staff, url) {
   const recent = all('SELECT * FROM inquiries ORDER BY created_at DESC LIMIT 8');
   const expiring = all(`SELECT d.*, t.company, t.id app FROM trade_documents d JOIN trade_applications t ON t.id = d.application_id
     WHERE d.expires_on IS NOT NULL AND d.expires_on <= date('now', '+30 day') AND t.status != 'inactive' ORDER BY d.expires_on LIMIT 10`);
-  const failed = all("SELECT * FROM outbox WHERE status IN ('failed','retrying','not_configured') ORDER BY created_at DESC LIMIT 8");
+  const bl = backlog();
   const ev = eventSummary(30);
   const svc = services({ includeHidden: true });
   const pub = svc.filter((s) => s.availability === 'published').length;
   const priced = svc.filter((s) => s.price).length;
   const warn = [];
-  if (!emailReady()) warn.push(`Email notifications are <strong>off</strong>: ${esc(emailBlocker())}. Every submission is still saved here — check this page regularly. Unsent notifications from the last 3 days are delivered automatically once email is set up. <a href="/admin/settings/">Business details</a>`);
+  if (!emailReady()) warn.push(`Email notifications are <strong>off</strong>: ${esc(emailBlocker())}. Every submission is still saved here — check this page regularly. Once email is set up, notifications from the last 3 days go out automatically; older ones are listed under “Email delivery” below with a button to send them. <a href="/admin/settings/">Business details</a>`);
   if (!getSetting('business', {}).license?.verified) warn.push('No verified contractor license number is shown on the site. Florida generally requires it in advertising — add it under <a href="/admin/settings/">Business details</a> once confirmed.');
   page(res, 'Dashboard', `${flash(url)}<h1 class="h2">Dashboard</h1>
   ${list(warn, (w) => `<div class="alert info mt-2">${w}</div>`)}
@@ -143,9 +144,30 @@ function dashboard(res, staff, url) {
   </div>
   <h2 class="h3 mt-4">Recent inquiries</h2>${inquiryTable(recent)}
   ${expiring.length ? `<h2 class="h3 mt-4">Trade documents expiring within 30 days</h2><table class="a-table"><thead><tr><th>Partner</th><th>Document</th><th>Expires</th></tr></thead><tbody>${list(expiring, (d) => `<tr><td><a href="/admin/trades/${d.app}/">${esc(d.company)}</a></td><td>${esc(d.kind)}</td><td>${esc(fmtDate(d.expires_on))}</td></tr>`)}</tbody></table>` : ''}
-  <h2 class="h3 mt-4">Activity — last 30 days</h2><p class="small muted">Aggregate counts only (no cookies or personal data). Phone and email counts are link clicks, not completed calls or emails. Crawler counts use the visitor’s claimed identity and are indicative.</p>
+  <h2 class="h3 mt-4">Activity — last 30 days</h2><p class="small muted">Aggregate counts only (no cookies or personal data). Phone and email counts are link clicks, not completed calls or emails. “Saved” counts are submissions stored in the database. Crawler counts use the visitor’s claimed identity (not verified) and are not visits from people; referrals are the referring site’s name only.</p>
+  ${(() => { const n = (name) => ev.filter((e) => e.name === name).reduce((a, e) => a + e.n, 0);
+    return `<div class="a-stats">${list([['Inquiry forms started', 'inquiry_start'], ['Inquiries saved', 'inquiry_submitted'], ['Trade applications saved', 'trade_application_submitted'], ['Form errors', 'form_error'], ['Upload problems', 'upload_error'], ['Send failures (browser)', 'submit_failed'], ['Phone link clicks', 'phone_click'], ['Email link clicks', 'email_click'], ['Emails failed after retries', 'email_failed']], ([l, k]) => `<div><strong>${n(k)}</strong><span>${l}</span></div>`)}</div>`; })()}
   ${ev.length ? `<table class="a-table"><thead><tr><th>Event</th><th>Detail</th><th>Count</th></tr></thead><tbody>${list(ev, (e) => `<tr><td>${esc(e.name)}</td><td>${esc(e.label)}</td><td>${e.n}</td></tr>`)}</tbody></table>` : '<p class="muted">No activity recorded yet.</p>'}
-  ${failed.length ? `<h2 class="h3 mt-4">Notifications not delivered</h2><table class="a-table"><thead><tr><th>When</th><th>Subject</th><th>Status</th></tr></thead><tbody>${list(failed, (o) => `<tr><td>${esc(fmtDateTime(o.created_at))}</td><td>${esc(o.subject)}</td><td>${esc(o.status)} — ${esc(o.detail || '')}</td></tr>`)}</tbody></table>` : ''}`, staff);
+  ${emailPanel(bl, staff)}`, staff);
+}
+
+// ---- email delivery (backlog) ----
+const OUTBOX_LABEL = { sent: 'sent', pending: 'waiting', not_configured: 'not sent — email off', retrying: 'retrying', failed: 'failed after retries', skipped: 'not sent (too late)' };
+function emailPanel(bl, staff) {
+  const counts = Object.entries(bl.counts).map(([s, n]) => `${n} ${OUTBOX_LABEL[s] || s}`).join(' · ') || 'nothing yet';
+  const real = bl.staff.filter((m) => !isTestMessage(m)).length;
+  return `<h2 class="h3 mt-4" id="email">Email delivery</h2>
+  <p class="small muted">${esc(counts)}. Staff notifications go to ${esc(notificationInbox())}.</p>
+  ${bl.staff.length ? `<p class="mt-2"><strong>${bl.staff.length} staff notification${bl.staff.length === 1 ? '' : 's'} not delivered</strong> (${real} about real submissions, ${bl.staff.length - real} about test records). Every submission is saved in admin regardless.</p>
+  <div class="a-scroll"><table class="a-table"><thead><tr><th>Created</th><th>Subject</th><th>Status</th><th>Tries</th></tr></thead><tbody>${list(bl.staff, (o) => `<tr><td>${esc(fmtDateTime(o.created_at))}</td><td>${esc(o.subject)}${isTestMessage(o) ? ' <span class="badge b-inactive">test</span>' : ''}</td><td>${esc(OUTBOX_LABEL[o.status] || o.status)}${o.detail ? ` — ${esc(o.detail)}` : ''}</td><td>${o.attempts || 0}</td></tr>`)}</tbody></table></div>
+  ${emailReady() ? `<form class="mt-2" method="post" action="/admin/email/">${csrf(staff)}<label class="small"><input type="checkbox" name="include_tests" value="1"> Include test records</label> <button class="btn small" type="submit">Send these to ${esc(notificationInbox())} now</button></form>` : `<p class="small muted">They can be sent from here once email is on (${esc(emailBlocker())}).</p>`}` : '<p class="small">No undelivered staff notifications.</p>'}
+  ${bl.confirmations.length ? `<p class="small mt-2"><strong>${bl.confirmations.length} customer confirmation${bl.confirmations.length === 1 ? '' : 's'} not sent.</strong> These are never sent late automatically — reply to those customers personally if needed: ${esc(bl.confirmations.map((o) => (o.subject.match(/\(([A-Z]{3}-[A-Z0-9]+)\)/) || [])[1]).filter(Boolean).join(', ') || 'see records')}.</p>` : ''}`;
+}
+async function emailReplay(req, res, staff) {
+  const { fields } = await postForm(req, staff);
+  const r = await replayBacklog({ includeTests: one(fields.include_tests) === '1' });
+  audit(staff.user.id, 'email.replay', 'outbox', 'backlog', r);
+  back(res, '/admin/', r.blocked ? `Email is off: ${r.blocked}` : `Sent ${r.sent}, failed ${r.failed}, test records left out ${r.skipped}.`);
 }
 
 // ---- inquiries ----

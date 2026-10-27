@@ -1,0 +1,30 @@
+{
+ "base": "https://nationdesignconstruction.com",
+ "crawled": 106,
+ "status": {
+  "200": 106
+ },
+ "sitemapUrls": 106,
+ "sitemapNot200": [],
+ "sitemapNoindex": [],
+ "sitemapBadCanonical": [],
+ "sitemapUnlinked": [],
+ "indexableNotInSitemap": [],
+ "maxDepth": 1,
+ "h1NotOne": [],
+ "dupTitles": [],
+ "dupDescriptions": [],
+ "missingDescription": [],
+ "ldErrors": [],
+ "schema": {
+  "GeneralContractor": 106,
+  "WebSite": 1,
+  "BreadcrumbList": 105,
+  "FAQPage": 85,
+  "Service": 81
+ },
+ "lastmodDates": {
+  "2026-10-24": 106
+ },
+ "non200": []
+}
