@@ -50,11 +50,18 @@ Preview: launch config **nationdc** (parent `.claude/launch.json`, port 4600). L
   (`src/server/email.mjs`). Aggregate events in `events` table (`src/server/events.mjs`), no personal data.
 - Photos: `<picture>` AVIF + WebP from `tools/fetch-images.mjs`; entries may set `file` (versioned name), `widths`,
   `position`, `source` (local master in brand/src/photos), `edited`.
-- After content changes on production: `node --use-system-ca tools/indexnow.mjs`.
+- After content changes on production: `node --use-system-ca tools/indexnow.mjs --since <YYYY-MM-DD>` (changed URLs only).
+- Sitemap lastmod = newest of the page date in `src/data/lastmod.mjs` (bump only for material main-content changes) and
+  admin edit dates (service edits → service, its categories, listing pages; published photos). Never "today" by default.
+- Counts/listings come from `categories()` in `src/server/services.mjs` (cross-listed services included everywhere).
+  Hidden services must not appear in any listing, selector, sitemap or llms.txt (tests cover this).
+- Functional query strings get `noindex, follow` (main.mjs); tracking params rely on the clean canonical.
+- Page scripts are passed as `scripts: ['/js/x.js']` — layout adds `?v=ASSET_VERSION`; never hard-code unversioned assets.
+- Backups: `tools/backup.mjs` + `tools/restore-check.mjs`; crawl inventory: `tools/crawl.mjs`. See docs/DEPLOYMENT.md.
 - Patch files with the Edit tool or scripts written via the Write tool — bash heredocs strip backslashes in regexes
   (`\b` became a backspace character on 2026-10-24).
 
 ## Verify every change
-`node tools/check-content.mjs && node tools/test.mjs`
+`node tools/check-content.mjs && node tools/test.mjs && node tools/test-email.mjs`
 Headless screenshots: `node tools/shots.mjs 1440 4000 name=http://localhost:4600/path/` → `scratch/shots/`
 (Edge headless can't go below ~500px wide; use the browser pane's mobile preset for phone checks.)

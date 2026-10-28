@@ -71,3 +71,18 @@ Render issues and renews the TLS certificates. `www` → apex 301 (Render edge);
 - Live test inquiry **NDC-YSEVBF** ("WEBSITE TEST - please delete", with a PDF) saved; mark it closed in admin.
 - PageSpeed (mobile, lab): home 98 / 100 / 100 / 100, LCP 2.1 s, CLS 0, TBT 0; kitchen service page 100 perf,
   LCP 1.2 s (SEO 69 only because preview pages are intentionally noindex).
+
+## Cleanup pass (2026-10-27)
+- Before deploying: `git tag checkpoint-pre-cleanup-2026-10-27`; production database copied on the server with SQLite
+  `VACUUM INTO` → `/var/data/backups/ndc-pre-cleanup-20261027.db` plus `/var/data/backups/private-20261027/` (same
+  disk — the daily snapshot is the off-instance copy). Render Shell works for this (Dashboard → nationdc → Shell).
+- Backups: `node tools/backup.mjs <dataDir> <outDir>` (consistent DB copy + uploads + checksum manifest). Restore drill:
+  `node tools/restore-check.mjs <outDir>` restores into a temp folder, checks integrity, row counts and every upload's
+  checksum, and boots the server on it. Verified 2026-10-27 on local data with an uploaded PDF. Never test a restore by
+  restoring a production snapshot (it discards later changes).
+- Crawl inventory: `node --use-system-ca tools/crawl.mjs https://nationdesignconstruction.com <name>` →
+  `docs/crawl/<name>.csv|json|-summary.json` (status, robots, canonical, title/description/H1, links, depth, schema,
+  sitemap/lastmod). Baseline and final runs are in docs/crawl/.
+- IndexNow after a deploy: `node --use-system-ca tools/indexnow.mjs --since <date of the changes>` (only changed URLs).
+- Email backlog: admin → Dashboard → Email delivery lists every undelivered staff notification at any age; once the
+  key is set, "Send these" replays them (test records left out unless ticked). Automatic retries cover 3 days.
